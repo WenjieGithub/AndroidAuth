@@ -10,6 +10,8 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven { url 'https://maven.aliyun.com/repository/google' }
+        maven { url 'https://maven.aliyun.com/repository/public' }      // 小米有些库需要jcenter
         maven { url 'https://www.jitpack.io' }
         maven { url 'https://developer.huawei.com/repo/' }              // TODO 华为仓库
         maven {                                                         // TODO 小米依赖项
