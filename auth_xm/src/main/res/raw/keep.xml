@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@layout/mio_activity_paylist"
+    tools:shrinkMode="safe" />
+<!--TODO 由于打包删减资源时会删除没有使用资源，这个资源会被删除，所以使用此方法，小米修复后删除；-->

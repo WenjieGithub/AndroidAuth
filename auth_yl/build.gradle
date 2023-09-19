@@ -1,0 +1,11 @@
+plugins {
+    id 'com.android.library'
+    id 'org.jetbrains.kotlin.android'
+}
+
+apply from: '../build_module.gradle'
+
+dependencies {
+    compileOnly(project(':auth'))
+    implementation 'com.github.WenjieGithub:AndroidAuthForYL:3.1.6'
+}

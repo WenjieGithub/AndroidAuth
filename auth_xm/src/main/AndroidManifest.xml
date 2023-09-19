@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.GET_TASKS" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="com.xiaomi.sdk.permission.APP" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="com.xiaomi.permission.AUTH_SERVICE" />
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+
+
+    <application>
+        <meta-data
+            android:name="XMAppId"
+            android:value="xm${XMAppId}" />           <!-- appId -->
+        <meta-data
+            android:name="XMAppKey"
+            android:value="xm${XMAppKey}" />          <!-- AppKey -->
+
+        <activity android:name="com.xiaomi.account.openauth.AuthorizeActivity" />
+    </application>
+</manifest>

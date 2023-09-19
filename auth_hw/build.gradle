@@ -1,0 +1,15 @@
+plugins {
+    id 'com.android.library'
+    id 'org.jetbrains.kotlin.android'
+}
+
+apply from: '../build_module.gradle'
+
+dependencies {
+    compileOnly(project(':auth'))
+
+    api 'com.huawei.hms:push:6.5.0.300'             // push
+    implementation 'com.huawei.hms:hwid:6.4.0.301'  // 账号
+    implementation 'com.huawei.hms:iap:6.4.0.301'   // 支付
+    implementation 'com.huawei.hms:appservice:6.6.0.301' // 联运应用SDK
+}

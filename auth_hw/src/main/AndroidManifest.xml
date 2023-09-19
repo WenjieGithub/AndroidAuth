@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!--check network permissions-->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!--check wifi state-->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+
+    <application>
+        <meta-data
+            android:name="HWClientID"
+            android:value="hw${HWClientID}" />
+        <meta-data
+            android:name="HWClientSecret"
+            android:value="hw${HWClientSecret}" />
+        <meta-data
+            android:name="HWApiKey"
+            android:value="hw${HWApiKey}" />
+        <meta-data
+            android:name="HWCpId"
+            android:value="hw${HWCpId}" />
+        <meta-data
+            android:name="HWProductId"
+            android:value="hw${HWProductId}" />
+        <meta-data
+            android:name="HWAppId"
+            android:value="hw${HWAppId}" />
+
+
+        <meta-data
+            android:name="com.huawei.hms.client.channel.androidMarket"
+            android:value="false" />
+
+        <activity
+            android:name="cn.moltres.android.auth.hw.AuthActivityForHW"
+            android:configChanges="keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
+            android:launchMode="singleTask"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+    </application>
+</manifest>

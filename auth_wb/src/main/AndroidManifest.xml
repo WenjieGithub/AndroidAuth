@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!--    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />-->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+
+    <queries>
+        <package android:name="com.sina.weibo" />
+    </queries>
+
+    <application>
+        <meta-data
+            android:name="WBAppKey"
+            android:value="wb${WBAppKey}" />
+        <meta-data
+            android:name="WBRedirectUrl"
+            android:value="${WBRedirectUrl}" />
+        <meta-data
+            android:name="WBScope"
+            android:value="${WBScope}" />
+
+        <activity
+            android:name="cn.moltres.android.auth.wb.AuthActivityForWB"
+            android:configChanges="keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
+            android:launchMode="singleTask"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+    </application>
+</manifest>

@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!--银联-->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.NFC" />
+    <uses-permission android:name="org.simalliance.openmobileapi.SMARTCARD" />
+    <uses-feature android:name="android.hardware.nfc.hce" />
+
+    <queries>
+        <package android:name="com.eg.android.AlipayGphone" />
+        <package android:name="com.tencent.mm" />
+
+        <package android:name="com.unionpay" />
+        <!--云闪付-->
+        <package android:name="com.unionpay.tsmservice.mi" />
+        <!--小米 pay-->
+        <package android:name="com.huawei.wallet" />
+        <!--华为钱包-->
+        <package android:name="com.unionpay.tsmservice" />
+        <!--其他安卓 pay-->
+        <package android:name="com.pingan.paces.ccms" />
+        <!--平安口袋银行-->
+        <package android:name="com.chinamworld.main" />
+        <!--中国建设银行-->
+        <package android:name="com.ccb.longjiLife" />
+        <!--建行生活-->
+        <package android:name="com.ecitic.bank.mobile" />
+        <!--中信银行-->
+        <package android:name="com.citiccard.mobilebank" />
+        <!--动卡空间-->
+        <package android:name="com.cebbank.mobile.cemb" />
+        <!--光大银行-->
+        <package android:name="com.ebank.creditcard" />
+        <!--阳光惠生活-->
+        <package android:name="cn.com.cmbc.newmbank" />
+        <!--民生银行-->
+        <package android:name="com.cmbc.cc.mbank" />
+        <!--全民生活-->
+        <package android:name="cn.com.spdb.mobilebank.per" />
+        <!--浦发银行-->
+        <package android:name="com.spdbccc.app" />
+        <!--浦大喜奔-->
+        <package android:name="com.bankcomm.Bankcomm" />
+        <!--交通银行-->
+        <package android:name="com.bankcomm.maidanba" />
+        <!--买单吧-->
+        <package android:name="cmb.pb" />
+        <!--招商银行-->
+        <package android:name="com.cmbchina.ccd.pluto.cmbActivity" />
+        <!--掌上生活-->
+        <package android:name="cn.com.shbank.mper" />
+        <!--上海银行-->
+        <package android:name="cn.com.shbank.pension" />
+        <!--上银美好生活-->
+        <package android:name="com.bankofbeijing.mobilebanking" />
+        <!--北京银行(京彩生活)-->
+        <package android:name="com.csii.bj.ui" />
+        <!--掌上京彩-->
+        <package android:name="com.icbc" />
+        <!--中国工商银行-->
+        <package android:name="com.icbc.elife" />
+        <!--工银 e 生活-->
+        <package android:name="com.android.bankabc" />
+        <!--中国农业银行-->
+        <package android:name="com.abchina.ebizbtob" />
+        <!--农银 e 管家-->
+        <package android:name="com.yitong.mbank.psbc" />
+        <!--邮储银行-->
+        <package android:name="com.yitong.mbank.psbc.creditcard" />
+        <!--邮储信用卡-->
+        <package android:name="com.chinamworld.bocmbci" />
+        <!--中国银行-->
+        <package android:name="com.forms" />
+        <!--缤纷生活-->
+        <package android:name="com.cgbchina.xpt" />
+        <!--广发银行-->
+        <package android:name="com.cs_credit_bank" />
+        <!--发现精彩-->
+        <package android:name="com.cib.cibmb" />
+        <!--兴业银行-->
+        <package android:name="com.cib.xyk" />
+        <!--好兴动-->
+        <package android:name="com.hxb.mobile.client" />
+        <!--华夏银行-->
+        <package android:name="com.HuaXiaBank.HuaCard" />
+        <!--华彩生活-->
+        <package android:name="cn.com.lzb.mobilebank.per" />
+        <!--兰州银行-->
+    </queries>
+
+
+    <application>
+        <activity
+            android:name="cn.moltres.android.auth.yl.AuthActivityForYL"
+            android:configChanges="keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
+            android:launchMode="singleTask"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+
+        <!--银联-->
+        <activity
+            android:name="com.unionpay.UPPayWapActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:exported="false"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Dialog"
+            android:windowSoftInputMode="adjustResize" />
+
+        <meta-data
+            android:name="PPPaySDK"
+            android:value="true" />
+        <meta-data
+            android:name="CurrentEnvironment"
+            android:value="PROD" />
+
+        <uses-library
+            android:name="org.simalliance.openmobileapi"
+            android:required="false"/>
+
+        <!--        <activity-->
+        <!--            android:name="com.unionpay.uppay.PayActivity"-->
+        <!--            android:label="@string/app_name"-->
+        <!--            android:screenOrientation="portrait"-->
+        <!--            android:configChanges="orientation|keyboardHidden"-->
+        <!--            android:excludeFromRecents="true"-->
+        <!--            android:windowSoftInputMode="adjustResize"/>-->
+    </application>
+</manifest>

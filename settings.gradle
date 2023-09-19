@@ -1,0 +1,35 @@
+pluginManagement {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+}
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+        maven { url 'https://www.jitpack.io' }
+        maven { url 'https://developer.huawei.com/repo/' }              // TODO 华为仓库
+        maven {                                                         // TODO 小米依赖项
+            credentials {
+                username '5f45c9022d5925c55bc00c6f'
+                password 'NQwPJAa42nlV'
+            }
+            url 'https://packages.aliyun.com/maven/repository/2028284-release-awMPKn/'
+        }
+    }
+}
+
+rootProject.name = "AndroidAuth"
+include ':app'
+include ':auth'
+include ':auth_wx'
+include ':auth_wb'
+include ':auth_qq'
+include ':auth_zfb'
+include ':auth_google'
+include ':auth_hw'
+include ':auth_xm'
+include ':auth_yl'
