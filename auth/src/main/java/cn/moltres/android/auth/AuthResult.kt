@@ -23,9 +23,9 @@ sealed class AuthResult {
     override fun toString(): String {
         return when (this) {
             Cancel -> "Cancel"
-            is Error -> "Error: $msg  ${exception?.stackTraceToString()}"
-            is Success -> "Success: $msg  $data"
             Uninstalled -> "Uninstalled"
+            is Error -> "Error -> $code  $msg  ${exception?.stackTraceToString()}"
+            is Success -> "Success -> $msg  $data  $any"
         }
     }
 }

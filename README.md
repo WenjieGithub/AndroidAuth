@@ -78,7 +78,10 @@ manifestPlaceholders = [
 
 ### 初始化
 ```kotlin
-ThirdAuth.init(application)
+Auth.init(application)
+Auth.logCallback = { str ->
+    // 输出日志
+}
 // 微信 manifest 中配置过 WXAppId, 不用再此配置
 Auth.wxAppId = "AppId"
 // 微博 manifest 中配置过, 不用再此配置

@@ -1,6 +1,6 @@
 package cn.moltres.android.auth
 
-abstract class AbsAuthBuildForYL : AbsAuthBuild() {
+abstract class AbsAuthBuildForYL : AbsAuthBuild("YL") {
     /**
      * 支付
      * @param orderInfo 订单信息

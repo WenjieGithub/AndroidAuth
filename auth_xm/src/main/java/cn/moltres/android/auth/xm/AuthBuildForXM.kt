@@ -2,7 +2,6 @@ package cn.moltres.android.auth.xm
 
 import android.app.Activity
 import android.text.TextUtils
-import android.util.Log
 import cn.moltres.android.auth.AbsAuthBuildForXM
 import cn.moltres.android.auth.Auth
 import cn.moltres.android.auth.XMAccountType
@@ -41,7 +40,7 @@ class AuthBuildForXM : AbsAuthBuildForXM() {
                     MiCommplatform.getInstance().isAlertDialogDisplay = isDialog
                     MiCommplatform.getInstance().isToastDisplay = isToast
                 }
-                else -> { Log.e("Auth", "小米SDK初始化失败: $msg") }
+                else -> { Auth.logCallback?.invoke("小米SDK初始化失败: $msg") }
             }
         }
     }
@@ -56,6 +55,7 @@ class AuthBuildForXM : AbsAuthBuildForXM() {
         account: XMAccountType,
         extra: String?
     ) = suspendCancellableCoroutine { coroutine ->
+        mAction = "login"
         mCallback = { coroutine.resume(it) }
         val lt = when (type) {
             XMLoginType.AutoFirst -> MiLoginType.AUTO_FIRST
@@ -92,6 +92,7 @@ class AuthBuildForXM : AbsAuthBuildForXM() {
         amount: Int,
         userInfo: String
     ) = suspendCancellableCoroutine { coroutine ->
+        mAction = "payAmount"
         mCallback = { coroutine.resume(it) }
         val miBuyInfo = MiBuyInfo()
         miBuyInfo.cpOrderId = orderId      // 订单号唯一（不为空）
@@ -112,6 +113,7 @@ class AuthBuildForXM : AbsAuthBuildForXM() {
         productCode: String,
         quantity: Int
     ) = suspendCancellableCoroutine { coroutine ->
+        mAction = "payCode"
         mCallback = { coroutine.resume(it) }
         val miBuyInfo = MiBuyInfo()
         miBuyInfo.cpOrderId = orderId          // 订单号唯一（不为空）
@@ -132,6 +134,7 @@ class AuthBuildForXM : AbsAuthBuildForXM() {
         productCode: String,
         quantity: Int
     ) = suspendCancellableCoroutine { coroutine ->
+        mAction = "payTreaty"
         mCallback = { coroutine.resume(it) }
         val miBuyInfo = MiBuyInfo()
         miBuyInfo.cpOrderId = orderId          // 订单号唯一（不为空）

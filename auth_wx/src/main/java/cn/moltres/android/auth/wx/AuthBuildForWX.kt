@@ -56,24 +56,26 @@ class AuthBuildForWX : AbsAuthBuildForWX() {
     }
 
     override fun checkAppInstalled(): AuthResult {
+        mAction = "checkAppInstalled"
         return try {
             if (mAPI == null) {
-                AuthResult.Error("微信 初始化失败")
+                resultError("初始化失败")
             } else if (mAPI?.isWXAppInstalled == true) {
-                AuthResult.Success("已经安装了微信客户端")
+                resultSuccess()
             } else {
-                AuthResult.Uninstalled
+                resultUninstalled()
             }
         } catch (e: Exception) {
-            AuthResult.Error(e.stackTraceToString(), e)
+            resultError(e.message, null, e)
         }
     }
 
     override fun launchMiniProgram(id: String, path: String, type: Int): AuthResult {
+        mAction = "launchMiniProgram"
         return if (mAPI == null) {
-            AuthResult.Error("微信 初始化失败")
+            resultError("初始化失败")
         } else if (mAPI?.isWXAppInstalled != true) {
-            AuthResult.Uninstalled
+            resultUninstalled()
         } else {
             val req = WXLaunchMiniProgram.Req()
             req.userName = id   // 填小程序原始id
@@ -84,14 +86,15 @@ class AuthBuildForWX : AbsAuthBuildForWX() {
                 else -> WXLaunchMiniProgram.Req.MINIPTOGRAM_TYPE_RELEASE
             }
             mAPI?.sendReq(req)
-            AuthResult.Success()
+            resultSuccess()
         }
     }
 
     override suspend fun login() = suspendCancellableCoroutine { coroutine ->
+        mAction = "login"
         mCallback = { coroutine.resume(it) }
         if (mAPI == null) {
-            resultError("微信 初始化失败")
+            resultError("初始化失败")
         } else if (mAPI?.isWXAppInstalled != true) {
             resultUninstalled()
         } else {
@@ -110,9 +113,10 @@ class AuthBuildForWX : AbsAuthBuildForWX() {
         thumb: ByteArray?,
         shareScene: WXShareScene
     ) = suspendCancellableCoroutine { coroutine ->
+        mAction = "shareLink"
         mCallback = { coroutine.resume(it) }
         if (mAPI == null) {
-            resultError("微信 初始化失败")
+            resultError("初始化失败")
         } else if (mAPI?.isWXAppInstalled != true) {
             resultUninstalled()
         } else {
@@ -140,9 +144,10 @@ class AuthBuildForWX : AbsAuthBuildForWX() {
         thumb: ByteArray?,
         shareScene: WXShareScene
     ) = suspendCancellableCoroutine { coroutine ->
+        mAction = "shareImage"
         mCallback = { coroutine.resume(it) }
         if (mAPI == null) {
-            resultError("微信 初始化失败")
+            resultError("初始化失败")
         } else if (mAPI?.isWXAppInstalled != true) {
             resultUninstalled()
         } else {
@@ -171,9 +176,10 @@ class AuthBuildForWX : AbsAuthBuildForWX() {
         sign: String,
         packageValue: String
     ) = suspendCancellableCoroutine { coroutine ->
+        mAction = "pay"
         mCallback = { coroutine.resume(it) }
         if (mAPI == null) {
-            resultError("微信 初始化失败")
+            resultError("初始化失败")
         } else if (mAPI?.isWXAppInstalled != true) {
             resultUninstalled()
         } else {
@@ -195,9 +201,10 @@ class AuthBuildForWX : AbsAuthBuildForWX() {
         data: String,
         useOld: Boolean
     ) = suspendCancellableCoroutine { coroutine ->
+        mAction = "payTreaty"
         mCallback = { coroutine.resume(it) }
         if (mAPI == null) {
-            resultError("微信 初始化失败")
+            resultError("初始化失败")
         } else if (mAPI?.isWXAppInstalled != true) {
             resultUninstalled()
         } else if (useOld) {

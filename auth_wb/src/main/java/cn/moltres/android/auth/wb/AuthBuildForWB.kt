@@ -49,23 +49,25 @@ class AuthBuildForWB : AbsAuthBuildForWB() {
     }
 
     override fun checkAppInstalled(): AuthResult {
+        mAction = "checkAppInstalled"
         return try {
             if (mAPI == null) {
-                AuthResult.Error("微博 初始化失败")
+                resultError("初始化失败")
             } else if (mAPI?.isWBAppInstalled == true) {
-                AuthResult.Success("已经安装了微博客户端")
+                resultSuccess()
             } else {
-                AuthResult.Uninstalled
+                resultUninstalled()
             }
         } catch (e: Exception) {
-            AuthResult.Error(e.stackTraceToString(), e)
+            resultError(e.message, null, e)
         }
     }
 
     override suspend fun login() = suspendCancellableCoroutine { coroutine ->
+        mAction = "login"
         mCallback = { coroutine.resume(it) }
         if (mAPI == null) {
-            resultError("微博 初始化失败")
+            resultError("初始化失败")
         } else {
             AuthActivityForWB.authBuildForWB = this
             AuthActivityForWB.callbackActivity = { activity ->
@@ -95,9 +97,10 @@ class AuthBuildForWB : AbsAuthBuildForWB() {
         text: String?,
         thumb: ByteArray?,
     ) = suspendCancellableCoroutine { coroutine ->
+        mAction = "shareLink"
         mCallback = { coroutine.resume(it) }
         if (mAPI == null) {
-            resultError("微博 初始化失败")
+            resultError("初始化失败")
         } else if (mAPI?.isWBAppInstalled == true) {
             AuthActivityForWB.authBuildForWB = this
             AuthActivityForWB.callbackActivity = { activity ->
@@ -135,9 +138,10 @@ class AuthBuildForWB : AbsAuthBuildForWB() {
         bitmap: Bitmap,
         title: String?,
     ) = suspendCancellableCoroutine { coroutine ->
+        mAction = "shareImage"
         mCallback = { coroutine.resume(it) }
         if (mAPI == null) {
-            resultError("微博 初始化失败")
+            resultError("初始化失败")
         } else if (mAPI?.isWBAppInstalled == true) {
             AuthActivityForWB.authBuildForWB = this
             AuthActivityForWB.callbackActivity = { activity ->

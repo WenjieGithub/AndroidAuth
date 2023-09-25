@@ -17,6 +17,7 @@ class AuthBuildForZFB : AbsAuthBuildForZFB() {
         orderInfo: String,
         activity: Activity?
     ) = suspendCancellableCoroutine { coroutine ->
+        mAction = "pay"
         mCallback = { coroutine.resume(it) }
         if (activity == null) {
             AuthActivityForZFB.callbackActivity = {
@@ -47,6 +48,7 @@ class AuthBuildForZFB : AbsAuthBuildForZFB() {
     }
 
     override suspend fun payTreaty(data: String) = suspendCancellableCoroutine { coroutine ->
+        mAction = "payTreaty"
         mCallback = { coroutine.resume(it) }
         try {
             AuthActivityForZFB.authBuildForZFB = this

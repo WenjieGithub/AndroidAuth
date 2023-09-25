@@ -3,6 +3,7 @@ package cn.moltres.android.auth.wx
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import cn.moltres.android.auth.Auth
 import cn.moltres.android.auth.AuthResult
 import com.tencent.mm.opensdk.constants.ConstantsAPI
 import com.tencent.mm.opensdk.modelbase.BaseReq
@@ -168,19 +169,22 @@ class AuthActivityForWX : Activity() {
 
     /** 只有在 AuthBuild 没有启用的时候回调, 即：微信主动调用时启用 */
     private fun onResultError(msg: String, json: JSONObject? = null) {
-        callback?.invoke(AuthResult.Error("$msg : $json"))
+        callback?.invoke(AuthResult.Error("$msg , $json"))
+        Auth.logCallback?.invoke("WX-onResultError: $msg , $json")
         finish()
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
     }
 
     private fun onResultCancel() {
         callback?.invoke(AuthResult.Cancel)
+        Auth.logCallback?.invoke("WX-onResultCancel")
         finish()
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
     }
 
     private fun onResultSuccess(msg: String, json: JSONObject? = null) {
-        callback?.invoke(AuthResult.Success(msg, json?.toString()))
+        callback?.invoke(AuthResult.Success(msg, json?.toString(), json))
+        Auth.logCallback?.invoke("WX-onResultSuccess: $msg  $json")
         finish()
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out)
     }

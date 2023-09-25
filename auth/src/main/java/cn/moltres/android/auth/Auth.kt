@@ -7,6 +7,7 @@ import java.lang.reflect.InvocationTargetException
 
 object Auth {
     lateinit var application: Application
+    var logCallback: ((String) -> Unit)? = null
     val separatorLine = System.getProperty("line.separator") ?: "\n"        // 换行符
 
     var wxAppId: String? = null
@@ -61,8 +62,7 @@ object Auth {
 
     fun withGoogle(): AbsAuthBuildForGoogle {
         return try {
-            val constructor =
-                Class.forName("cn.moltres.android.auth.google.AuthBuildForGoogle").getConstructor()
+            val constructor = Class.forName("cn.moltres.android.auth.google.AuthBuildForGoogle").getConstructor()
             constructor.newInstance() as AbsAuthBuildForGoogle
         } catch (e: Exception) {
             throw NullPointerException("添加谷歌依赖, 并配置: $e ${(e as? InvocationTargetException)?.targetException}")
@@ -71,8 +71,7 @@ object Auth {
 
     fun withQQ(): AbsAuthBuildForQQ {
         return try {
-            val constructor =
-                Class.forName("cn.moltres.android.auth.qq.AuthBuildForQQ").getConstructor()
+            val constructor = Class.forName("cn.moltres.android.auth.qq.AuthBuildForQQ").getConstructor()
             constructor.newInstance() as AbsAuthBuildForQQ
         } catch (e: Exception) {
             throw IllegalAccessException("添加QQ依赖, 并配置: $e ${(e as? InvocationTargetException)?.targetException}")
@@ -81,8 +80,7 @@ object Auth {
 
     fun withWB(): AbsAuthBuildForWB {
         return try {
-            val constructor =
-                Class.forName("cn.moltres.android.auth.wb.AuthBuildForWB").getConstructor()
+            val constructor = Class.forName("cn.moltres.android.auth.wb.AuthBuildForWB").getConstructor()
             constructor.newInstance() as AbsAuthBuildForWB
         } catch (e: Exception) {
             throw IllegalAccessException("添加微博依赖, 并配置: $e ${(e as? InvocationTargetException)?.targetException}")
@@ -91,8 +89,7 @@ object Auth {
 
     fun withWX(): AbsAuthBuildForWX {
         return try {
-            val constructor =
-                Class.forName("cn.moltres.android.auth.wx.AuthBuildForWX").getConstructor()
+            val constructor = Class.forName("cn.moltres.android.auth.wx.AuthBuildForWX").getConstructor()
             constructor.newInstance() as AbsAuthBuildForWX
         } catch (e: Exception) {
             throw IllegalAccessException("添加微信依赖, 并配置: $e ${(e as? InvocationTargetException)?.targetException}")
@@ -101,8 +98,7 @@ object Auth {
 
     fun withZFB(): AbsAuthBuildForZFB {
         return try {
-            val constructor =
-                Class.forName("cn.moltres.android.auth.zfb.AuthBuildForZFB").getConstructor()
+            val constructor = Class.forName("cn.moltres.android.auth.zfb.AuthBuildForZFB").getConstructor()
             constructor.newInstance() as AbsAuthBuildForZFB
         } catch (e: Exception) {
             throw IllegalAccessException("添加支付宝依赖, 并配置: $e ${(e as? InvocationTargetException)?.targetException}")
@@ -111,8 +107,7 @@ object Auth {
 
     fun withHW(): AbsAuthBuildForHW {
         return try {
-            val constructor =
-                Class.forName("cn.moltres.android.auth.hw.AuthBuildForHW").getConstructor()
+            val constructor = Class.forName("cn.moltres.android.auth.hw.AuthBuildForHW").getConstructor()
             constructor.newInstance() as AbsAuthBuildForHW
         } catch (e: Exception) {
             throw IllegalAccessException("添加华为依赖, 并配置: $e ${(e as? InvocationTargetException)?.targetException}")
@@ -121,8 +116,7 @@ object Auth {
 
     fun withXM(): AbsAuthBuildForXM {
         return try {
-            val constructor =
-                Class.forName("cn.moltres.android.auth.xm.AuthBuildForXM").getConstructor()
+            val constructor = Class.forName("cn.moltres.android.auth.xm.AuthBuildForXM").getConstructor()
             constructor.newInstance() as AbsAuthBuildForXM
         } catch (e: Exception) {
             throw IllegalAccessException("添加小米依赖, 并配置: $e ${(e as? InvocationTargetException)?.targetException}")
@@ -131,8 +125,7 @@ object Auth {
 
     fun withYL(): AbsAuthBuildForYL {
         return try {
-            val constructor =
-                Class.forName("cn.moltres.android.auth.yl.AuthBuildForYL").getConstructor()
+            val constructor = Class.forName("cn.moltres.android.auth.yl.AuthBuildForYL").getConstructor()
             constructor.newInstance() as AbsAuthBuildForYL
         } catch (e: Exception) {
             throw IllegalAccessException("添加银联依赖: $e ${(e as? InvocationTargetException)?.targetException}")

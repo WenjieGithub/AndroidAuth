@@ -5,7 +5,6 @@ import android.content.Intent
 import android.content.IntentSender.SendIntentException
 import android.text.TextUtils
 import android.util.Base64
-import android.util.Log
 import cn.moltres.android.auth.AbsAuthBuildForHW
 import cn.moltres.android.auth.HWPriceType
 import cn.moltres.android.auth.Auth
@@ -60,7 +59,7 @@ class AuthBuildForHW: AbsAuthBuildForHW() {
 
                 AGConnectInstance.initialize(Auth.application, builder)
             } catch (e: IOException) {
-                Log.e("Auth", "华为SDK初始化失败：${e.stackTraceToString()}")
+                Auth.logCallback?.invoke("华为SDK初始化失败：${e.stackTraceToString()}")
             }
         }
     }
@@ -70,40 +69,45 @@ class AuthBuildForHW: AbsAuthBuildForHW() {
         val appsClient = JosApps.getJosAppsClient(activity)
         val initTask = appsClient.init(AppParams(params))
         initTask.addOnSuccessListener {
-            // 初始化成功
+            Auth.logCallback?.invoke("$with-onActivityCreate 初始化成功")
         }.addOnFailureListener {
-            // 初始化失败
+            Auth.logCallback?.invoke("$with-onActivityCreate 初始化失败")
         }
 
-        val client = JosApps.getAppUpdateClient(activity)
-        HWCheck.checkUp(client, activity, object : CheckUpdateCallBack {
-            override fun onUpdateInfo(intent: Intent?) {
-                intent?.let {
-                    // 获取更新状态码， Default_value为取不到status时默认的返回码，由应用自行决定
-                    val status = intent.getIntExtra(UpdateKey.STATUS, 1001001)
-                    // 错误码，建议打印
-                    val rtnCode = intent.getIntExtra(UpdateKey.FAIL_CODE, 1001001)
-                    // 失败信息，建议打印
-                    val rtnMessage = intent.getStringExtra(UpdateKey.FAIL_REASON)
-                    val info = intent.getSerializableExtra(UpdateKey.INFO)
-                    // 可通过获取到的info是否属于ApkUpgradeInfo类型来判断应用是否有更新
-                    if (info is ApkUpgradeInfo) {
-                        // 这里调用showUpdateDialog接口拉起更新弹窗
-                        client.showUpdateDialog(activity, info, forceUpdate)
+        try {
+            val client = JosApps.getAppUpdateClient(activity)
+            HWCheck.checkUp(client, activity, object : CheckUpdateCallBack {
+                override fun onUpdateInfo(intent: Intent?) {
+                    intent?.let {
+                        // 获取更新状态码， Default_value为取不到status时默认的返回码，由应用自行决定
+                        val status = intent.getIntExtra(UpdateKey.STATUS, 1001001)
+                        // 错误码，建议打印
+                        val rtnCode = intent.getIntExtra(UpdateKey.FAIL_CODE, 1001001)
+                        // 失败信息，建议打印
+                        val rtnMessage = intent.getStringExtra(UpdateKey.FAIL_REASON)
+                        val info = intent.getSerializableExtra(UpdateKey.INFO)
+                        // 可通过获取到的info是否属于ApkUpgradeInfo类型来判断应用是否有更新
+                        if (info is ApkUpgradeInfo) {
+                            // 这里调用showUpdateDialog接口拉起更新弹窗
+                            client.showUpdateDialog(activity, info, forceUpdate)
+                        }
+                        Auth.logCallback?.invoke("$with-onActivityCreate onUpdateInfo status: $status, rtnCode: $rtnCode, rtnMessage: $rtnMessage")
                     }
-                    "onUpdateInfo status: $status, rtnCode: $rtnCode, rtnMessage: $rtnMessage"
                 }
-            }
-            override fun onMarketInstallInfo(intent: Intent?) {
-            }
-            override fun onMarketStoreError(i: Int) {
-            }
-            override fun onUpdateStoreError(i: Int) {
-            }
-        })
+                override fun onMarketInstallInfo(intent: Intent?) {
+                }
+                override fun onMarketStoreError(i: Int) {
+                }
+                override fun onUpdateStoreError(i: Int) {
+                }
+            })
+        } catch (e: Exception) {
+            Auth.logCallback?.invoke("$with-onActivityCreate checkUp失败 ${e.stackTraceToString()}")
+        }
     }
 
     override suspend fun jumpToManageSubsPage(activity: Activity) = suspendCancellableCoroutine { coroutine ->
+        mAction = "jumpToManageSubsPage"
         mCallback = { coroutine.resume(it) }
         val req = StartIapActivityReq()
         req.type = StartIapActivityReq.TYPE_SUBSCRIBE_MANAGER_ACTIVITY
@@ -113,13 +117,14 @@ class AuthBuildForHW: AbsAuthBuildForHW() {
             result?.startActivity(activity)     // 请求成功，需拉起IAP返回的页面
             resultSuccess()
         }.addOnFailureListener {
-            resultError(it.message, null, it)
+            resultError(it?.message, null, it)
         }.addOnCanceledListener {
             resultCancel()
         }
     }
 
     override suspend fun login() = suspendCancellableCoroutine { coroutine ->
+        mAction = "login"
         mCallback = { coroutine.resume(it) }
         AuthActivityForHW.callbackActivity = { activity ->
             // 1、配置登录请求参数AccountAuthParams，包括请求用户的id(openid、unionid)、email、profile(昵称、头像)等;
@@ -172,7 +177,7 @@ class AuthBuildForHW: AbsAuthBuildForHW() {
                     // intent.putExtra(CommonConstant.RequestParams.IS_FULL_SCREEN, true)
                     activity.startActivityForResult(authService.signInIntent, 8888)
                 } else {
-                    resultError(ae.stackTraceToString(), activity, ae)
+                    resultError(ae?.message, activity, ae)
                 }
             }
         }
@@ -180,6 +185,7 @@ class AuthBuildForHW: AbsAuthBuildForHW() {
     }
 
     override suspend fun cancelAuth(activity: Activity) = suspendCancellableCoroutine { coroutine ->
+        mAction = "cancelAuth"
         mCallback = { coroutine.resume(it) }
         val authParam = AccountAuthParamsHelper(AccountAuthParams.DEFAULT_AUTH_REQUEST_PARAM)
             .setEmail()
@@ -189,10 +195,10 @@ class AuthBuildForHW: AbsAuthBuildForHW() {
         val authService = AccountAuthManager.getService(activity, authParam)
         val task = authService.cancelAuthorization()
         task.addOnSuccessListener {
-            resultSuccess("cancelAuthorization success", null)
+            resultSuccess()
         }
         task.addOnFailureListener { e ->
-            resultError("cancelAuthorization failure:" + e.javaClass.simpleName, null, e)
+            resultError(e?.message, null, e)
         }
     }
 
@@ -201,6 +207,7 @@ class AuthBuildForHW: AbsAuthBuildForHW() {
         priceType: HWPriceType,
         record: Boolean
     ) = suspendCancellableCoroutine { coroutine ->
+        mAction = "purchaseHistoryQuery"
         mCallback = { coroutine.resume(it) }
         val req = OwnedPurchasesReq()
         req.priceType = priceType.code
@@ -229,7 +236,7 @@ class AuthBuildForHW: AbsAuthBuildForHW() {
                     e.printStackTrace()
                 }
             }
-            resultSuccess("查询成功", null, null, jsonArray)
+            resultSuccess(null, null, null, jsonArray)
         }.addOnFailureListener { e ->
             if (e is IapApiException) {
                 resultError("code: ${e.statusCode}; msg: ${e.message}", null, e)
@@ -240,6 +247,7 @@ class AuthBuildForHW: AbsAuthBuildForHW() {
     }
 
     override suspend fun payCheck() = suspendCancellableCoroutine { coroutine ->
+        mAction = "payCheck"
         mCallback = { coroutine.resume(it) }
         AuthActivityForHW.callbackActivity = { activity ->
             val task = Iap.getIapClient(activity).isEnvReady
@@ -274,7 +282,7 @@ class AuthBuildForHW: AbsAuthBuildForHW() {
                         resultError("code: ${e.status.statusCode}; msg: ${e.status.errorString}", activity, e)
                     }
                 } else {
-                    resultError(e.message, activity, e)
+                    resultError(e?.message, activity, e)
                 }
             }
         }
@@ -285,6 +293,7 @@ class AuthBuildForHW: AbsAuthBuildForHW() {
         activity: Activity,
         purchaseToken: String
     ) = suspendCancellableCoroutine { coroutine ->
+        mAction = "payConsume"
         mCallback = { coroutine.resume(it) }
         val req = ConsumeOwnedPurchaseReq()
         req.purchaseToken = purchaseToken
@@ -306,6 +315,7 @@ class AuthBuildForHW: AbsAuthBuildForHW() {
         productList: List<String>,
         priceType: HWPriceType,
     ) = suspendCancellableCoroutine { coroutine ->
+        mAction = "payProductQuery"
         mCallback = { coroutine.resume(it) }
         val req = ProductInfoReq()
         req.priceType = priceType.code       // priceType: 0：消耗型商品; 1：非消耗型商品; 2：订阅型商品
@@ -354,6 +364,7 @@ class AuthBuildForHW: AbsAuthBuildForHW() {
         priceType: HWPriceType,
         developerPayload: String?
     ) = suspendCancellableCoroutine { coroutine ->
+        mAction = "payPMS"
         mCallback = { coroutine.resume(it) }
         AuthActivityForHW.callbackActivity = { activity ->
             val req = PurchaseIntentReq()
@@ -401,6 +412,7 @@ class AuthBuildForHW: AbsAuthBuildForHW() {
         developerPayload: String?,
         serviceCatalog: String
     ) = suspendCancellableCoroutine { coroutine ->
+        mAction = "payAmount"
         mCallback = { coroutine.resume(it) }
         AuthActivityForHW.callbackActivity = { activity ->
             val req = PurchaseIntentWithPriceReq()

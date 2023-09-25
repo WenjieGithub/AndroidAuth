@@ -2,7 +2,7 @@ package cn.moltres.android.auth
 
 import android.app.Activity
 
-abstract class AbsAuthBuildForZFB : AbsAuthBuild() {
+abstract class AbsAuthBuildForZFB : AbsAuthBuild("ZFB") {
     /**
      * 支付
      * @param orderInfo 订单信息

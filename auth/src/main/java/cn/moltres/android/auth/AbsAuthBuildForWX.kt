@@ -2,7 +2,7 @@ package cn.moltres.android.auth
 
 import android.graphics.Bitmap
 
-abstract class AbsAuthBuildForWX : AbsAuthBuild() {
+abstract class AbsAuthBuildForWX : AbsAuthBuild("WX") {
     /** 注册微信发送数据到应用时的回调 */
     abstract fun registerCallback(callback: (result: AuthResult) -> Unit)
 

@@ -1,11 +1,10 @@
 package cn.moltres.android.auth
 
-import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
 import android.os.Build
 
-object AuthBuildForMore : AbsAuthBuild() {
+object AuthBuildForMore : AbsAuthBuild("More") {
     /**
      * 分享到更多
      * @param text 分享文本
@@ -18,6 +17,7 @@ object AuthBuildForMore : AbsAuthBuild() {
         val intent = Intent.createChooser(shareIntent, "Share To")
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) //Intent.createChooser()方法会丢掉flags,这里加上
         Auth.application.startActivity(intent)
+        Auth.logCallback?.invoke("$with-shareToMore")
     }
 
     /**
@@ -32,23 +32,25 @@ object AuthBuildForMore : AbsAuthBuild() {
      * @param url 分享链接 Url
      * @param title 分享显示标题
      */
-    fun shareLink(packageName: String, url: String, title: String?) {
+    fun shareLink(packageName: String, url: String, title: String?, chooser: String = "Share To"): AuthResult {
+        mAction = "shareLink"
         var shareIntent = Intent()
         shareIntent.action = Intent.ACTION_SEND
         shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         shareIntent.type = "text/plain"
         shareIntent.putExtra(Intent.EXTRA_TEXT, "${title}${Auth.separatorLine}${url}")
         shareIntent.setPackage(packageName)
-        if(Auth.isInstalled(packageName, shareIntent)){
-            shareIntent = Intent.createChooser(shareIntent, "Share To")//需要使用Intent.createChooser，否则会出现应用选择框
+        return if (Auth.isInstalled(packageName, shareIntent)) {
+            shareIntent = Intent.createChooser(shareIntent, chooser)//需要使用Intent.createChooser，否则会出现应用选择框
             shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            if(url.isEmpty()){
+            if (url.isEmpty()) {
                 resultError("url 不能为空")
-            }else{
+            } else {
                 try {
                     Auth.application.startActivity(shareIntent)
-                } catch (e: ActivityNotFoundException) {
-                    resultError("找不到包名对应的应用: $packageName   ${e.stackTraceToString()}")
+                    resultSuccess()
+                } catch (e: Exception) {
+                    resultError("找不到包名对应的应用: $packageName", null, e)
                 }
             }
         } else {
@@ -69,24 +71,28 @@ object AuthBuildForMore : AbsAuthBuild() {
      * @param url 分享链接 Url
      * @param title 分享显示标题
      */
-    fun shareImage(packageName: String, image: Uri, url: String?, title: String?) {
+    fun shareImage(packageName: String, image: Uri, url: String?, title: String?, chooser: String = "Share To"): AuthResult {
+        mAction = "shareImage"
         var shareIntent = Intent()
         shareIntent.action = Intent.ACTION_SEND
         shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        shareIntent.putExtra(Intent.EXTRA_TEXT, "${title}${Auth.separatorLine}${url}")
+        if (!title.isNullOrEmpty() && !url.isNullOrEmpty()) {
+            shareIntent.putExtra(Intent.EXTRA_TEXT, "${title}${Auth.separatorLine}${url}")
+        }
         shareIntent.type = "image/*"
         shareIntent.putExtra(Intent.EXTRA_STREAM, image)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
         shareIntent.setPackage(packageName)
-        if(Auth.isInstalled(packageName, shareIntent)){
-            shareIntent = Intent.createChooser(shareIntent, "Share To")
+        return if (Auth.isInstalled(packageName, shareIntent)) {
+            shareIntent = Intent.createChooser(shareIntent, chooser)
             shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             try {
                 Auth.application.startActivity(shareIntent)
-            } catch (e: ActivityNotFoundException) {
-                resultError("找不到包名对应的应用: $packageName   ${e.stackTraceToString()}")
+                resultSuccess()
+            } catch (e: Exception) {
+                resultError("找不到包名对应的应用: $packageName", null, e)
             }
         } else {
             resultUninstalled()

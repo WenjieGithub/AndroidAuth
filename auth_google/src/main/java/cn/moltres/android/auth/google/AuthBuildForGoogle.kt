@@ -33,7 +33,11 @@ class AuthBuildForGoogle: AbsAuthBuildForGoogle() {
                     if (mClientListener != null) {
                         mClientListener?.invoke(billingResult, purchases)
                     } else if (billingResult.responseCode == BillingClient.BillingResponseCode.OK) {
-                        mClientExtListener?.invoke(purchases?.map { JSONObject(it.originalJson) })
+                        mClientExtListener?.invoke(
+                            purchases?.map { JSONObject(it.originalJson) }.apply {
+                                Auth.logCallback?.invoke("$with-setPurchasesUpdatedListener: $this")
+                            }
+                        )
                     }
                 }
                 .enablePendingPurchases()
@@ -72,11 +76,12 @@ class AuthBuildForGoogle: AbsAuthBuildForGoogle() {
         productList: List<String>,
         productType: GoogleProductType
     ) = suspendCancellableCoroutine { coroutine ->
+        mAction = "payProductQuery"
         mCallback = { coroutine.resume(it) }
         if (productList.isEmpty()) {
             resultError("payProductQuery productList 参数不能为空")
         } else {
-            initClient() {
+            initClient {
                 val queryProductDetailsParams = QueryProductDetailsParams.newBuilder()
                     .setProductList(
                         productList.map { productId ->
@@ -138,10 +143,10 @@ class AuthBuildForGoogle: AbsAuthBuildForGoogle() {
                                     subscriptionOfferDetails
                                 )
                             }
-                            resultSuccess("payProductQuery 查询商品成功", null, null, list)
+                            resultSuccess("查询商品成功", null, null, list)
                         }
                         BillingClient.BillingResponseCode.USER_CANCELED -> resultCancel()
-                        else -> resultError("payProductQuery 查询商品失败: code=${billingResult.responseCode}  msg=${billingResult.debugMessage}")
+                        else -> resultError("查询商品失败: code=${billingResult.responseCode}  msg=${billingResult.debugMessage}")
                     }
                 }
             }
@@ -156,15 +161,16 @@ class AuthBuildForGoogle: AbsAuthBuildForGoogle() {
         prorationMode: ProrationMode,
         isOfferPersonalized: Boolean
     ) = suspendCancellableCoroutine { coroutine ->
+        mAction = "pay"
         mCallback = { coroutine.resume(it) }
         initClient({ billingResult, purchases ->
             when (billingResult.responseCode) {
                 BillingClient.BillingResponseCode.OK -> {
                     val list = purchases?.map { JSONObject(it.originalJson) }
-                    resultSuccess("pay 购买交易更新", null, null, list)
+                    resultSuccess("购买交易更新", null, null, list)
                 }
                 BillingClient.BillingResponseCode.USER_CANCELED -> resultCancel()
-                else -> resultError("pay 购买交易更新: code=${billingResult.responseCode}  msg=${billingResult.debugMessage}")
+                else -> resultError("购买交易更新: code=${billingResult.responseCode}  msg=${billingResult.debugMessage}")
             }
         }, {
             val pd = googleProductDetails.productDetails as ProductDetails
@@ -198,12 +204,13 @@ class AuthBuildForGoogle: AbsAuthBuildForGoogle() {
             when (billingResult.responseCode) {
                 BillingClient.BillingResponseCode.OK -> {} // 走 newClient 回调监听
                 BillingClient.BillingResponseCode.USER_CANCELED -> resultCancel()
-                else -> resultError("pay 启动购买流程失败: code=${billingResult.responseCode}  msg=${billingResult.debugMessage}")
+                else -> resultError("启动购买流程失败: code=${billingResult.responseCode}  msg=${billingResult.debugMessage}")
             }
         })
     }
 
     override suspend fun payConsume(purchaseToken: String) = suspendCancellableCoroutine { coroutine ->
+        mAction = "payConsume"
         mCallback = { coroutine.resume(it) }
         initClient {
             val consumeParams = ConsumeParams.newBuilder()
@@ -211,15 +218,16 @@ class AuthBuildForGoogle: AbsAuthBuildForGoogle() {
                 .build()
             mClient!!.consumeAsync(consumeParams) { billingResult, purchaseToken ->
                 when (billingResult.responseCode) {
-                    BillingClient.BillingResponseCode.OK -> resultSuccess("payConsume 购买商品消耗成功", purchaseToken, null)
+                    BillingClient.BillingResponseCode.OK -> resultSuccess(null, purchaseToken, null)
                     BillingClient.BillingResponseCode.USER_CANCELED -> resultCancel()
-                    else -> resultError("payConsume 购买商品消耗失败: code=${billingResult.responseCode}  msg=${billingResult.debugMessage}")
+                    else -> resultError("token=$purchaseToken code=${billingResult.responseCode}  msg=${billingResult.debugMessage}")
                 }
             }
         }
     }
 
     override suspend fun purchaseQuery(productType: GoogleProductType) = suspendCancellableCoroutine { coroutine ->
+        mAction = "purchaseQuery"
         mCallback = { coroutine.resume(it) }
         initClient {
             mClient!!.queryPurchasesAsync(QueryPurchasesParams.newBuilder().setProductType(
@@ -230,16 +238,17 @@ class AuthBuildForGoogle: AbsAuthBuildForGoogle() {
             ).build()) { billingResult, purchases ->
                 when (billingResult.responseCode) {
                     BillingClient.BillingResponseCode.OK -> {
-                        resultSuccess("purchaseQuery", null, null, purchases.map { JSONObject(it.originalJson) })
+                        resultSuccess(null, null, null, purchases.map { JSONObject(it.originalJson) })
                     }
                     BillingClient.BillingResponseCode.USER_CANCELED -> resultCancel()
-                    else -> resultError("purchaseQuery: code=${billingResult.responseCode}  msg=${billingResult.debugMessage}")
+                    else -> resultError("code=${billingResult.responseCode}  msg=${billingResult.debugMessage}")
                 }
             }
         }
     }
 
     override suspend fun purchaseHistoryQuery(productType: GoogleProductType) = suspendCancellableCoroutine { coroutine ->
+        mAction = "purchaseHistoryQuery"
         mCallback = { coroutine.resume(it) }
         initClient {
             mClient!!.queryPurchaseHistoryAsync(QueryPurchaseHistoryParams.newBuilder().setProductType(
@@ -250,10 +259,10 @@ class AuthBuildForGoogle: AbsAuthBuildForGoogle() {
             ).build()) { billingResult, purchasesHistoryList ->
                 when (billingResult.responseCode) {
                     BillingClient.BillingResponseCode.OK -> {
-                        resultSuccess("purchaseHistoryQuery", null, null, purchasesHistoryList?.map { JSONObject(it.originalJson) })
+                        resultSuccess( null, null, null, purchasesHistoryList?.map { JSONObject(it.originalJson) })
                     }
                     BillingClient.BillingResponseCode.USER_CANCELED -> resultCancel()
-                    else -> resultError("purchaseHistoryQuery: code=${billingResult.responseCode}  msg=${billingResult.debugMessage}")
+                    else -> resultError("code=${billingResult.responseCode}  msg=${billingResult.debugMessage}")
                 }
             }
         }

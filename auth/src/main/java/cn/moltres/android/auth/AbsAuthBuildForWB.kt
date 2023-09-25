@@ -2,7 +2,7 @@ package cn.moltres.android.auth
 
 import android.graphics.Bitmap
 
-abstract class AbsAuthBuildForWB : AbsAuthBuild() {
+abstract class AbsAuthBuildForWB : AbsAuthBuild("WB") {
     /** 检查应用安装 */
     abstract fun checkAppInstalled(): AuthResult
 

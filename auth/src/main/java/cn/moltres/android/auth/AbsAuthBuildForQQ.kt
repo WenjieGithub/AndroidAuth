@@ -1,6 +1,6 @@
 package cn.moltres.android.auth
 
-abstract class AbsAuthBuildForQQ : AbsAuthBuild() {
+abstract class AbsAuthBuildForQQ : AbsAuthBuild("QQ") {
     /** 检查应用安装 */
     abstract fun checkAppInstalled(): AuthResult
 

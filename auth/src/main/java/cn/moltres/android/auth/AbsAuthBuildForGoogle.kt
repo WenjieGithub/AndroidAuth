@@ -6,7 +6,7 @@ import android.net.Uri
 import android.text.TextUtils
 import org.json.JSONObject
 
-abstract class AbsAuthBuildForGoogle : AbsAuthBuild() {
+abstract class AbsAuthBuildForGoogle : AbsAuthBuild("Google") {
     /**
      * 可选，当有购买信息更新时回调（其他设备购买、线下购买），本机支付结果不走此回调
      */

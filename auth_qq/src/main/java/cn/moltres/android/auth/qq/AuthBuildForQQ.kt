@@ -33,20 +33,22 @@ class AuthBuildForQQ : AbsAuthBuildForQQ() {
     }
 
     override fun checkAppInstalled(): AuthResult {
+        mAction = "checkAppInstalled"
         return try {
             if (mAPI == null) {
-                AuthResult.Error("QQ API 初始化失败")
+                resultError("QQ API 初始化失败")
             } else if (mAPI?.isQQInstalled(Auth.application) == true) {
-                AuthResult.Success("已经安装了QQ客户端")
+                resultSuccess()
             } else {
-                AuthResult.Uninstalled
+                resultUninstalled()
             }
         } catch (e: Exception) {
-            AuthResult.Error(e.stackTraceToString(), e)
+            resultError(e.message, null, e)
         }
     }
 
     override suspend fun login() = suspendCancellableCoroutine { coroutine ->
+        mAction = "login"
         mCallback = { coroutine.resume(it) }
         if (mAPI == null) {
             resultError("QQ API 初始化失败")
@@ -93,9 +95,10 @@ class AuthBuildForQQ : AbsAuthBuildForQQ() {
         summary: String?,
         imageUrl: String?
     ) = suspendCancellableCoroutine { coroutine ->
+        mAction = "shareLink"
         mCallback = { coroutine.resume(it) }
         if (mAPI == null) {
-            resultError("微博 API 初始化失败")
+            resultError("初始化失败")
         } else if (mAPI?.isQQInstalled(Auth.application) == true) {
             AuthActivityForQQ.authBuildForQQ = this
             AuthActivityForQQ.callbackActivity = { activity ->

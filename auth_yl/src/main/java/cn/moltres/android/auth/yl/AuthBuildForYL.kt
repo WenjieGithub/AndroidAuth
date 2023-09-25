@@ -8,6 +8,7 @@ import kotlin.coroutines.resume
 class AuthBuildForYL : AbsAuthBuildForYL() {
 
     override suspend fun pay(orderInfo: String, test: Boolean) = suspendCancellableCoroutine { coroutine ->
+        mAction = "pay"
         mCallback = { coroutine.resume(it) }
         AuthActivityForYL.authBuildForYL = this
         AuthActivityForYL.callbackActivity = { activity ->
