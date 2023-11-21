@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application>
+        <!-- 填写APPID -->
+        <!-- 需要将xxid的值定义到string.xml里，否则可能被当成number处理而出错，若您的项目不支持从string.xml中获取，可尝试在数值前添加反斜杠和空格，如：android:value="\ 123456789" 。或者在id信息前加string字串，如：android:value="appid=123456789" -->
+        <meta-data
+            android:name="com.hihonor.iap.sdk.appid"
+            android:value="\ ${RYAppId}" />
+
+        <!-- 填写CPID -->
+        <!-- 需要将xxid的值定义到string.xml里，否则可能被当成number处理而出错，若您的项目不支持从string.xml中获取，可尝试在数值前添加反斜杠和空格，如：android:value="\ 123456789"。或者在id信息前加string字串，如：android:value="cpid=123456789" -->
+        <meta-data
+            android:name="com.hihonor.iap.sdk.cpid"
+            android:value="\ ${RYCpId}" />
+
+        <activity
+            android:name="cn.moltres.android.auth.ry.AuthActivityForRY"
+            android:configChanges="keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
+            android:launchMode="singleTask"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+    </application>
+</manifest>

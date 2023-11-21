@@ -27,9 +27,9 @@ abstract class AbsAuthBuild(val with: String) {
 
     fun resultUninstalled(
         activity: Activity? = null
-    ) = AuthResult.Uninstalled.apply {
+    ) = AuthResult.Uninstalled(with, mAction).apply {
+        Auth.logCallback?.invoke(this.toString())
         mCallback?.invoke(this)
-        Auth.logCallback?.invoke("$with-$mAction: $this")
         destroy(activity)
     }
     fun resultSuccess(
@@ -37,26 +37,26 @@ abstract class AbsAuthBuild(val with: String) {
         data: String? = null,
         activity: Activity? = null,
         any: Any? = null
-    ) = AuthResult.Success(msg, data, any).apply {
+    ) = AuthResult.Success(with, mAction, msg, data, any).apply {
+        Auth.logCallback?.invoke(this.toString())
         mCallback?.invoke(this)
-        Auth.logCallback?.invoke("$with-$mAction: $this")
         destroy(activity)
     }
     fun resultCancel(
         activity: Activity? = null
-    ) = AuthResult.Cancel.apply {
+    ) = AuthResult.Cancel(with, mAction).apply {
+        Auth.logCallback?.invoke(this.toString())
         mCallback?.invoke(this)
-        Auth.logCallback?.invoke("$with-$mAction: $this")
         destroy(activity)
     }
     fun resultError(
         msg: String?,
         activity: Activity? = null,
-        exception: Exception? = null,
+        exception: Throwable? = null,
         code: Int = -1
-    ) = AuthResult.Error(msg, exception, code).apply {
+    ) = AuthResult.Error(with, mAction, msg, exception, code).apply {
+        Auth.logCallback?.invoke(this.toString())
         mCallback?.invoke(this)
-        Auth.logCallback?.invoke("$with-$mAction: $this")
         destroy(activity)
     }
 }

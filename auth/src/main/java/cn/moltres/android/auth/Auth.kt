@@ -123,6 +123,15 @@ object Auth {
         }
     }
 
+    fun withRY(): AbsAuthBuildForRY {
+        return try {
+            val constructor = Class.forName("cn.moltres.android.auth.ry.AuthBuildForRY").getConstructor()
+            constructor.newInstance() as AbsAuthBuildForRY
+        } catch (e: Exception) {
+            throw IllegalAccessException("添加荣耀依赖: $e ${(e as? InvocationTargetException)?.targetException}")
+        }
+    }
+
     fun withYL(): AbsAuthBuildForYL {
         return try {
             val constructor = Class.forName("cn.moltres.android.auth.yl.AuthBuildForYL").getConstructor()

@@ -1,6 +1,6 @@
 # Auth
 - Auth 是一款第三方登陆、分享、支付的快速集成库。
-- 支持平台包括微信、QQ、微博、支付宝、华为、小米、银联、GooglePay。
+- 支持平台包括微信、QQ、微博、支付宝、华为、荣耀、小米、银联、GooglePay。
 - 支持 Intent 方式调用 twitter、facebook 等分享。
 - 根据项目需求按需添加对应平台依赖。
 
@@ -8,10 +8,11 @@
 
 ### 配置maven仓库
 ```groovy
-maven { url 'https://developer.huawei.com/repo/' }              // 华为仓库
-maven { url 'https://maven.aliyun.com/repository/google' }
-maven { url 'https://maven.aliyun.com/repository/public' }      // 小米有些库需要jcenter
 maven { url 'https://jitpack.io' }                              // jitpack仓库
+maven { url 'https://developer.huawei.com/repo/' }              // 华为仓库
+maven { url 'https://developer.hihonor.com/repo' }              // 荣耀仓库
+maven { url 'https://maven.aliyun.com/repository/google' }      // 小米有些库需要jcenter
+maven { url 'https://maven.aliyun.com/repository/public' }      // 小米有些库需要jcenter
 maven {                                                         // 小米仓库
     credentials {
         username '5f45c9022d5925c55bc00c6f'
@@ -30,7 +31,7 @@ ndk { abiFilters 'armeabi', 'armeabi-v7a', 'arm64-v8a' }
 ```groovy
 implementation 'androidx.appcompat:appcompat:1.x.x'
 
-def auth_version = "0.1.0"
+def auth_version = "0.3.0"
 implementation "cn.moltres.android:auth:$auth_version"
 implementation "cn.moltres.android:auth_qq:$auth_version"
 implementation "cn.moltres.android:auth_wb:$auth_version"
@@ -39,6 +40,7 @@ implementation "cn.moltres.android:auth_zfb:$auth_version"
 implementation "cn.moltres.android:auth_yl:$auth_version"
 implementation "cn.moltres.android:auth_hw:$auth_version"
 implementation "cn.moltres.android:auth_xm:$auth_version"
+implementation "cn.moltres.android:auth_ry:$auth_version"
 implementation "cn.moltres.android:auth_google:$auth_version"
 ```
 
@@ -67,6 +69,9 @@ manifestPlaceholders = [
         HWClientID:"xxx",
         HWProductId:"xxx",
         HWClientSecret:"xxx",
+        // 荣耀
+        RYAppId:"xxx",
+        RYCpId:"xxx"
 ]
 ```
 
@@ -104,8 +109,8 @@ Auth.hwClientSecret = "ClientSecret"
 ```kotlin
 // 微信
 Auth.withWX().registerCallback { }  // 注册回调 微信请求数据会在此回调内，按需解析数据
-// 微博
-Auth.withWB()                       // 微博是异步初始化, 避免调用时初始化出现未初始化完成的问题, 所以提前调用一下初始化SDK (库内使用方式是延迟初始化, 第一次调用才做初始化)
+// 微博(可选)
+Auth.withWB()                       // 微博是异步初始化, 避免调用时初始化出现未初始化完成的问题, 所以提前调用一下, 初始化SDK (库内使用方式是延迟初始化, 第一次调用才做初始化)
 // 华为
 Auth.withHW()
 // 小米
@@ -174,3 +179,4 @@ Auth.withHW.purchaseHistoryQuery(activity, 0, false)
 - [华为联运: 6.4.0](https://developer.huawei.com/consumer/cn/doc/development/HMS-Guides/iap-development-guide-v4)
 - [小米联运: 3.5.3](https://dev.mi.com/distribute/doc/details?pId=1150#6)
 - [银联: 3.5.9](https://open.unionpay.com/tjweb/doc/mchnt/list?productId=3)
+- [荣耀: 6.0.3.005](https://developer.hihonor.com/cn/kitdoc?category=%E5%9F%BA%E7%A1%80%E6%9C%8D%E5%8A%A1&kitId=11001&navigation=guides&docId=android-intergrate-sdk.md)
