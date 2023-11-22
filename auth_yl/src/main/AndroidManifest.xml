@@ -103,6 +103,7 @@
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
 
         <!--银联-->
+<!--            Android 8.0 同时指定orientation和透明theme崩溃的bug-->
 <!--            android:screenOrientation="portrait"-->
         <activity
             android:name="com.unionpay.UPPayWapActivity"
