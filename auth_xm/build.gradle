@@ -10,14 +10,12 @@ dependencies {
     compileOnly(project(':auth'))
 
     implementation 'com.github.Enowr:AuthForAndroidXM:3.5.3'
-    implementation('com.xiaomi.account:oauth-android:3.5.1') { // 总是依赖最新版本 351
-        exclude group:'androidx.appcompat', module: 'appcompat'
-        exclude group:'com.android.support'
+    implementation('com.xiaomi.account:oauth-android:3.5.1')
+    implementation ('androidx.legacy:legacy-support-v13:1.0.0'){
+        exclude(group: 'androidx.core')
+        exclude(group: 'androidx.lifecycle')
     }
     implementation 'com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava'
-
-//    implementation 'androidx.multidex:multidex:2.0.0'
-    implementation 'androidx.legacy:legacy-support-v13:1.0.0'
     implementation 'com.android.volley:volley:1.1.0'
     implementation 'org.greenrobot:eventbus:3.1.1'
 }

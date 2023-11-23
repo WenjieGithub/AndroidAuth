@@ -20,10 +20,10 @@ abstract class AbsAuthBuildForXM : AbsAuthBuild("XM") {
      * @param extra 自有账号填入您的账号系统的用户id,小米账号传null即可.
      */
     abstract suspend fun login(
-        activity: Activity,
         type: XMLoginType = XMLoginType.AutoFirst,
         account: XMAccountType = XMAccountType.XM,
-        extra: String? = null
+        extra: String? = null,
+        activity: Activity? = null
     ): AuthResult
 
     /**
@@ -33,10 +33,10 @@ abstract class AbsAuthBuildForXM : AbsAuthBuild("XM") {
      * @param userInfo 用于透传用户信息,当用户支付成功后我们会将此参数透传给开发者业务服务器(不能为null或“”)
      */
     abstract suspend fun payAmount(
-        activity: Activity,
         orderId: String,
         amount: Int,
-        userInfo: String
+        userInfo: String,
+        activity: Activity? = null,
     ): AuthResult
 
     /**
@@ -46,10 +46,10 @@ abstract class AbsAuthBuildForXM : AbsAuthBuild("XM") {
      * @param quantity 非消耗类商品,取值=1 可消耗类商品,取值≥1
      */
     abstract suspend fun payCode(
-        activity: Activity,
         orderId: String,
         productCode: String,
-        quantity: Int
+        quantity: Int,
+        activity: Activity? = null,
     ): AuthResult
 
     /**
@@ -59,10 +59,10 @@ abstract class AbsAuthBuildForXM : AbsAuthBuild("XM") {
      * @param quantity 非消耗类商品,取值=1 可消耗类商品,取值≥1
      */
     abstract suspend fun payTreaty(
-        activity: Activity,
         orderId: String,
         productCode: String,
-        quantity: Int
+        quantity: Int,
+        activity: Activity? = null,
     ): AuthResult
 }
 

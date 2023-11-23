@@ -49,11 +49,22 @@ class AuthBuildForXM : AbsAuthBuildForXM() {
         MiCommplatform.getInstance().removeAllListener()
     }
 
+    private fun getActivity(activity: Activity?, callback: (Activity, Boolean) -> Unit) {
+        if (activity == null) {
+            AuthActivityForXM.callbackActivity = {
+                callback(it, true)
+            }
+            startAuthActivity(AuthActivityForXM::class.java)
+        } else {
+            callback(activity, false)
+        }
+    }
+
     override suspend fun login(
-        activity: Activity,
         type: XMLoginType,
         account: XMAccountType,
-        extra: String?
+        extra: String?,
+        activity: Activity?
     ) = suspendCancellableCoroutine { coroutine ->
         mAction = "login"
         mCallback = { coroutine.resume(it) }
@@ -66,31 +77,34 @@ class AuthBuildForXM : AbsAuthBuildForXM() {
             XMAccountType.App -> MiAccountType.APP
             XMAccountType.XM -> MiAccountType.MI_SDK
         }
-        MiCommplatform.getInstance().miLogin(activity, { code, account ->
-            when (code) {
-                MiCode.MI_LOGIN_SUCCESS -> {            // 登录成功
-                    val uid = account?.uid              // 获取用户的登录后的UID（即用户唯一标识）
-                    val session = account?.sessionId    // 获取用户的登陆的Session（请参考5.3.3流程校验Session有效性），可选,12小时过期
-                    val unionId = account?.unionId      // 用于验证在不同应用中 是否为同一用户, 如果为空 则代表没有开启unionID权限
-                    // 请开发者完成将uid和session提交给开发者自己服务器进行session验证
-                    if (!TextUtils.isEmpty(uid) && !TextUtils.isEmpty(session)) {
-                        val json = JSONObject().put("uid", uid).put("session", session).put("unionId", unionId).toString()
-                        resultSuccess("code: $code", json)
-                    } else {
-                        resultError("code = $code")
+        getActivity(activity) { a, b ->
+            val af = if (b) a else null
+            MiCommplatform.getInstance().miLogin(a, { code, account ->
+                when (code) {
+                    MiCode.MI_LOGIN_SUCCESS -> {            // 登录成功
+                        val uid = account?.uid              // 获取用户的登录后的UID（即用户唯一标识）
+                        val session = account?.sessionId    // 获取用户的登陆的Session（请参考5.3.3流程校验Session有效性），可选,12小时过期
+                        val unionId = account?.unionId      // 用于验证在不同应用中 是否为同一用户, 如果为空 则代表没有开启unionID权限
+                        // 请开发者完成将uid和session提交给开发者自己服务器进行session验证
+                        if (!TextUtils.isEmpty(uid) && !TextUtils.isEmpty(session)) {
+                            val json = JSONObject().put("uid", uid).put("session", session).put("unionId", unionId).toString()
+                            resultSuccess("code: $code", json, af)
+                        } else {
+                            resultError("code = $code", af)
+                        }
                     }
+                    MiCode.MI_ERROR_LOGIN_CANCEL -> resultCancel(af)
+                    else -> resultError("errorCode = $code", af)      // 登录失败,详细错误码见5.4 返回码
                 }
-                MiCode.MI_ERROR_LOGIN_CANCEL -> resultCancel()
-                else -> resultError("errorCode = $code")      // 登录失败,详细错误码见5.4 返回码
-            }
-        }, lt, at, extra)
+            }, lt, at, extra)
+        }
     }
 
     override suspend fun payAmount(
-        activity: Activity,
         orderId: String,
         amount: Int,
-        userInfo: String
+        userInfo: String,
+        activity: Activity?,
     ) = suspendCancellableCoroutine { coroutine ->
         mAction = "payAmount"
         mCallback = { coroutine.resume(it) }
@@ -98,20 +112,13 @@ class AuthBuildForXM : AbsAuthBuildForXM() {
         miBuyInfo.cpOrderId = orderId      // 订单号唯一（不为空）
         miBuyInfo.cpUserInfo = userInfo    // 此参数在用户支付成功后会透传给CP的服务器
         miBuyInfo.feeValue = amount        // 必须是大于0的整数，100代表1元人民币（不为空）
-        MiCommplatform.getInstance().miUniPay(activity, miBuyInfo) { code: Int, msg: String? ->
-            when (code) {
-                MiCode.MI_PAY_SUCCESS -> resultSuccess(msg)         // 购买成功，建议先通过自家服务器校验后再处理发货
-                MiCode.MI_ERROR_PAY_CANCEL -> resultCancel()        // 购买取消
-                else -> resultError("code=$code; msg=$msg")     // 购买失败,详细错误码见5.4 返回码
-            }
-        }
+        pay(miBuyInfo, activity)
     }
-
     override suspend fun payCode(
-        activity: Activity,
         orderId: String,
         productCode: String,
-        quantity: Int
+        quantity: Int,
+        activity: Activity?
     ) = suspendCancellableCoroutine { coroutine ->
         mAction = "payCode"
         mCallback = { coroutine.resume(it) }
@@ -119,20 +126,26 @@ class AuthBuildForXM : AbsAuthBuildForXM() {
         miBuyInfo.cpOrderId = orderId          // 订单号唯一（不为空）
         miBuyInfo.productCode = productCode    // 商品代码，开发者申请获得（不为空）
         miBuyInfo.quantity = quantity          // 购买数量(商品数量最大9999，最小1)（不为空）
-        MiCommplatform.getInstance().miUniPay(activity, miBuyInfo) { code: Int, msg: String? ->
-            when (code) {
-                MiCode.MI_PAY_SUCCESS -> resultSuccess(msg)     // 按计费代码 购买成功，建议先通过自家服务器校验后再处理发货
-                MiCode.MI_ERROR_PAY_CANCEL -> resultCancel()    // 购买取消
-                else -> resultError("code=$code; msg=$msg") // 购买失败,详细错误码见5.4 返回码
+        pay(miBuyInfo, activity)
+    }
+    private fun pay(miBuyInfo: MiBuyInfo, activity: Activity?) {
+        getActivity(activity) { a, b ->
+            val af = if (b) a else null
+            MiCommplatform.getInstance().miUniPay(a, miBuyInfo) { code: Int, msg: String? ->
+                when (code) {
+                    MiCode.MI_PAY_SUCCESS -> resultSuccess(msg, activity = af)  // 购买成功，建议先通过自家服务器校验后再处理发货
+                    MiCode.MI_ERROR_PAY_CANCEL -> resultCancel(af)              // 购买取消
+                    else -> resultError("code=$code; msg=$msg", af)         // 购买失败,详细错误码见5.4 返回码
+                }
             }
         }
     }
 
     override suspend fun payTreaty(
-        activity: Activity,
         orderId: String,
         productCode: String,
-        quantity: Int
+        quantity: Int,
+        activity: Activity?,
     ) = suspendCancellableCoroutine { coroutine ->
         mAction = "payTreaty"
         mCallback = { coroutine.resume(it) }
@@ -140,11 +153,14 @@ class AuthBuildForXM : AbsAuthBuildForXM() {
         miBuyInfo.cpOrderId = orderId          // 订单号唯一（不为空）
         miBuyInfo.productCode = productCode    // 商品代码，开发者申请获得（不为空）
         miBuyInfo.quantity = quantity          // 购买数量(商品数量最大9999，最小1)（不为空）
-        MiCommplatform.getInstance().miSubscribe(activity, miBuyInfo) { code: Int, msg: String? ->
-            when (code) {
-                MiCode.MI_SUB_SUCCESS -> resultSuccess(msg)     // 订阅成功
-                MiCode.MI_ERROR_PAY_CANCEL -> resultCancel()    // 购买取消
-                else -> resultError("code=$code; msg=$msg") // 购买失败,详细错误码见5.4 返回码
+        getActivity(activity) { a, b ->
+            val af = if (b) a else null
+            MiCommplatform.getInstance().miSubscribe(a, miBuyInfo) { code: Int, msg: String? ->
+                when (code) {
+                    MiCode.MI_SUB_SUCCESS -> resultSuccess(msg, null, af)   // 订阅成功
+                    MiCode.MI_ERROR_PAY_CANCEL -> resultCancel(af)              // 购买取消
+                    else -> resultError("code=$code; msg=$msg", af)         // 购买失败,详细错误码见5.4 返回码
+                }
             }
         }
     }

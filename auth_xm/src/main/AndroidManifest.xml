@@ -20,5 +20,11 @@
             android:value="xm${XMAppKey}" />          <!-- AppKey -->
 
         <activity android:name="com.xiaomi.account.openauth.AuthorizeActivity" />
+
+        <activity
+            android:name="cn.moltres.android.auth.xm.AuthActivityForXM"
+            android:configChanges="keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
+            android:launchMode="singleTask"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
     </application>
 </manifest>
