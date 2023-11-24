@@ -153,13 +153,24 @@ class AuthBuildForGoogle: AbsAuthBuildForGoogle() {
         }
     }
 
+    private fun getActivity(activity: Activity?, callback: (Activity, Activity?) -> Unit) {
+        if (activity == null) {
+            AuthActivityForGoogle.callbackActivity = {
+                callback(it, it)
+            }
+            startAuthActivity(AuthActivityForGoogle::class.java)
+        } else {
+            callback(activity, null)
+        }
+    }
+
     override suspend fun pay(
         activity: Activity,
         googleProductDetails: GoogleProductDetails,
         selectedOfferToken: String?,
         oldPurchaseToken: String?,
         prorationMode: ProrationMode,
-        isOfferPersonalized: Boolean
+        isOfferPersonalized: Boolean,
     ) = suspendCancellableCoroutine { coroutine ->
         mAction = "pay"
         mCallback = { coroutine.resume(it) }

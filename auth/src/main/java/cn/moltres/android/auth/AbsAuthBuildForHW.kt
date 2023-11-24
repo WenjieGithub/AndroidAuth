@@ -14,7 +14,7 @@ abstract class AbsAuthBuildForHW : AbsAuthBuild("HW") {
     /** 登录功能 授权 */
     abstract suspend fun login(): AuthResult
     /** 取消授权 */
-    abstract suspend fun cancelAuth(activity: Activity): AuthResult
+    abstract suspend fun cancelAuth(activity: Activity? = null): AuthResult
 
     /**
      * 购买记录查询
@@ -33,9 +33,9 @@ abstract class AbsAuthBuildForHW : AbsAuthBuild("HW") {
      * @return JSONArray
      */
     abstract suspend fun purchaseHistoryQuery(
-        activity: Activity,
         priceType: HWPriceType,
-        record: Boolean = false
+        record: Boolean = false,
+        activity: Activity? = null
     ): AuthResult
 
     /**
@@ -52,16 +52,16 @@ abstract class AbsAuthBuildForHW : AbsAuthBuild("HW") {
      * @return List<JSONObject>
      */
     abstract suspend fun payProductQuery(
-        activity: Activity,
         productList: List<String>,
         priceType: HWPriceType,
+        activity: Activity? = null
     ): AuthResult
 
     /**
      * 消耗型商品 消耗操作 确认购买
      * @param purchaseToken 消耗型商品, 消耗操作的商品 Token，json 字段名：purchaseToken
      */
-    abstract suspend fun payConsume(activity: Activity, purchaseToken: String): AuthResult
+    abstract suspend fun payConsume(purchaseToken: String, activity: Activity? = null): AuthResult
 
     /**
      * 购买PMS商品

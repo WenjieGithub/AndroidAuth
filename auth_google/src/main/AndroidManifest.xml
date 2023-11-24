@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <application>
+        <activity
+            android:name="cn.moltres.android.auth.google.AuthActivityForGoogle"
+            android:configChanges="keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
+            android:launchMode="singleTask"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
+    </application>
 </manifest>

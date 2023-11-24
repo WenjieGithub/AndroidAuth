@@ -1,13 +1,13 @@
-package cn.moltres.android.auth.ry
+package cn.moltres.android.auth.google
 
 import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 
-class AuthActivityForRY : AppCompatActivity() {
+class AuthActivityForGoogle : AppCompatActivity() {
     companion object {
-        internal var authBuildForRY: AuthBuildForRY? = null
-        internal var callbackActivity: ((activityForRY: AuthActivityForRY) -> Unit)? = null
+        internal var authBuildForGoogle: AuthBuildForGoogle? = null
+        internal var callbackActivity: ((activityForGoogle: AuthActivityForGoogle) -> Unit)? = null
         internal var callbackActivityResult: ((requestCode: Int, resultCode: Int, data: Intent?) -> Unit)? = null
     }
 
@@ -23,7 +23,7 @@ class AuthActivityForRY : AppCompatActivity() {
     }
 
     override fun onDestroy() {
-        authBuildForRY = null
+        authBuildForGoogle = null
         callbackActivity = null
         callbackActivityResult = null
         super.onDestroy()

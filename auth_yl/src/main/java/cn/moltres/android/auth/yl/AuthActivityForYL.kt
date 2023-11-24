@@ -7,7 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 class AuthActivityForYL : AppCompatActivity() {
     companion object {
         internal var authBuildForYL: AuthBuildForYL? = null
-        internal var callbackActivity: ((activityForWB: AuthActivityForYL) -> Unit)? = null
+        internal var callbackActivity: ((activityForYL: AuthActivityForYL) -> Unit)? = null
         internal var callbackActivityResult: ((requestCode: Int, resultCode: Int, data: Intent?) -> Unit)? = null
     }
 

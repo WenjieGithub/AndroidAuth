@@ -184,64 +184,79 @@ class AuthBuildForHW: AbsAuthBuildForHW() {
         startAuthActivity(AuthActivityForHW::class.java)
     }
 
-    override suspend fun cancelAuth(activity: Activity) = suspendCancellableCoroutine { coroutine ->
+    private fun getActivity(activity: Activity?, callback: (Activity, Activity?) -> Unit) {
+        if (activity == null) {
+            AuthActivityForHW.callbackActivity = {
+                callback(it, it)
+            }
+            startAuthActivity(AuthActivityForHW::class.java)
+        } else {
+            callback(activity, null)
+        }
+    }
+
+    override suspend fun cancelAuth(activity: Activity?) = suspendCancellableCoroutine { coroutine ->
         mAction = "cancelAuth"
         mCallback = { coroutine.resume(it) }
         val authParam = AccountAuthParamsHelper(AccountAuthParams.DEFAULT_AUTH_REQUEST_PARAM)
             .setEmail()
             .setAuthorizationCode()
             .createParams()
-        // 使用请求参数构造华为帐号登录授权服务AccountAuthService
-        val authService = AccountAuthManager.getService(activity, authParam)
-        val task = authService.cancelAuthorization()
-        task.addOnSuccessListener {
-            resultSuccess()
-        }
-        task.addOnFailureListener { e ->
-            resultError(e?.message, null, e)
+        getActivity(activity) { a, af ->
+            // 使用请求参数构造华为帐号登录授权服务AccountAuthService
+            val authService = AccountAuthManager.getService(a, authParam)
+            val task = authService.cancelAuthorization()
+            task.addOnSuccessListener {
+                resultSuccess(activity = af)
+            }
+            task.addOnFailureListener { e ->
+                resultError(e?.message, af, e)
+            }
         }
     }
 
     override suspend fun purchaseHistoryQuery(
-        activity: Activity,
         priceType: HWPriceType,
-        record: Boolean
+        record: Boolean,
+        activity: Activity?
     ) = suspendCancellableCoroutine { coroutine ->
         mAction = "purchaseHistoryQuery"
         mCallback = { coroutine.resume(it) }
         val req = OwnedPurchasesReq()
         req.priceType = priceType.code
-        val task = if (record) {
-            Iap.getIapClient(activity).obtainOwnedPurchaseRecord(req)
-        } else {
-            Iap.getIapClient(activity).obtainOwnedPurchases(req)
-        }
-        task.addOnSuccessListener { result ->
-            val jsonArray = JSONArray()
-            for (i in result.inAppPurchaseDataList.indices) {
-                val inAppSignature = result.inAppSignature[i]
-                val inAppPurchaseData = result.inAppPurchaseDataList[i]
-                try {
-                    val inAppPurchaseDataBean = InAppPurchaseData(inAppPurchaseData)
-                    val jo = JSONObject()
-                    // 当 purchaseState 为 0 时表示此次交易是成功的
-                    jo.put("purchaseState", inAppPurchaseDataBean.purchaseState)
-                    jo.put("orderSn", inAppPurchaseDataBean.developerPayload)
-                    jo.put("purchaseToken", inAppPurchaseDataBean.purchaseToken)
-                    jo.put("inAppSignature", inAppSignature)
-                    jo.put("inAppPurchaseData", inAppPurchaseData)
-                    jo.put("isSubValid", inAppPurchaseDataBean.isSubValid)
-                    jsonArray.put(jo)
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-            }
-            resultSuccess(null, null, null, jsonArray)
-        }.addOnFailureListener { e ->
-            if (e is IapApiException) {
-                resultError("code: ${e.statusCode}; msg: ${e.message}", null, e)
+        getActivity(activity) { a, af ->
+            val task = if (record) {
+                Iap.getIapClient(a).obtainOwnedPurchaseRecord(req)
             } else {
-                resultError(e?.message, null, e)
+                Iap.getIapClient(a).obtainOwnedPurchases(req)
+            }
+            task.addOnSuccessListener { result ->
+                val jsonArray = JSONArray()
+                for (i in result.inAppPurchaseDataList.indices) {
+                    val inAppSignature = result.inAppSignature[i]
+                    val inAppPurchaseData = result.inAppPurchaseDataList[i]
+                    try {
+                        val inAppPurchaseDataBean = InAppPurchaseData(inAppPurchaseData)
+                        val jo = JSONObject()
+                        // 当 purchaseState 为 0 时表示此次交易是成功的
+                        jo.put("purchaseState", inAppPurchaseDataBean.purchaseState)
+                        jo.put("orderSn", inAppPurchaseDataBean.developerPayload)
+                        jo.put("purchaseToken", inAppPurchaseDataBean.purchaseToken)
+                        jo.put("inAppSignature", inAppSignature)
+                        jo.put("inAppPurchaseData", inAppPurchaseData)
+                        jo.put("isSubValid", inAppPurchaseDataBean.isSubValid)
+                        jsonArray.put(jo)
+                    } catch (e: Exception) {
+                        Auth.logCallback?.invoke("华为 purchaseHistoryQuery 序列化 json 异常: ${e.stackTraceToString()}")
+                    }
+                }
+                resultSuccess(null, null, af, jsonArray)
+            }.addOnFailureListener { e ->
+                if (e is IapApiException) {
+                    resultError("code: ${e.statusCode}; msg: ${e.message}", af, e)
+                } else {
+                    resultError(e?.message, af, e)
+                }
             }
         }
     }
@@ -290,70 +305,74 @@ class AuthBuildForHW: AbsAuthBuildForHW() {
     }
 
     override suspend fun payConsume(
-        activity: Activity,
-        purchaseToken: String
+        purchaseToken: String,
+        activity: Activity?
     ) = suspendCancellableCoroutine { coroutine ->
         mAction = "payConsume"
         mCallback = { coroutine.resume(it) }
         val req = ConsumeOwnedPurchaseReq()
         req.purchaseToken = purchaseToken
-        // 消耗型商品发货成功后，需调用consumeOwnedPurchase接口进行消耗
-        val task = Iap.getIapClient(activity).consumeOwnedPurchase(req)
-        task.addOnSuccessListener { result ->
-            resultSuccess("code: ${result.returnCode}; msg: ${result.errMsg}")
-        }.addOnFailureListener { e ->
-            if (e is IapApiException) {
-                resultError(e.status.toString(), null, e)
-            } else {
-                resultError(e?.message, null, e)
+        getActivity(activity) { a, af ->
+            // 消耗型商品发货成功后，需调用consumeOwnedPurchase接口进行消耗
+            val task = Iap.getIapClient(a).consumeOwnedPurchase(req)
+            task.addOnSuccessListener { result ->
+                resultSuccess("code: ${result.returnCode}; msg: ${result.errMsg}", null, af)
+            }.addOnFailureListener { e ->
+                if (e is IapApiException) {
+                    resultError(e.status.toString(), af, e)
+                } else {
+                    resultError(e?.message, af, e)
+                }
             }
         }
     }
 
     override suspend fun payProductQuery(
-        activity: Activity,
         productList: List<String>,
         priceType: HWPriceType,
+        activity: Activity?
     ) = suspendCancellableCoroutine { coroutine ->
         mAction = "payProductQuery"
         mCallback = { coroutine.resume(it) }
         val req = ProductInfoReq()
         req.priceType = priceType.code       // priceType: 0：消耗型商品; 1：非消耗型商品; 2：订阅型商品
         req.productIds = productList
-        val task = Iap.getIapClient(activity).obtainProductInfo(req)// 调用obtainProductInfo接口获取AppGallery Connect网站配置的商品的详情信息
-        task.addOnSuccessListener { result ->
-            if (result.returnCode == 0) {
-                resultSuccess("查询成功", null, null, result.productInfoList.map {
-                    JSONObject().apply {
-                        put("ProductId", it.productId)
-                        put("PriceType", it.priceType)
-                        put("Price", it.price)
-                        put("MicrosPrice", it.microsPrice)
-                        put("OriginalLocalPrice", it.originalLocalPrice)
-                        put("OriginalMicroPrice", it.originalMicroPrice)
-                        put("Currency", it.currency)
-                        put("ProductName", it.productName)
-                        put("ProductDesc", it.productDesc)
-                        put("SubPeriod", it.subPeriod)
-                        put("SubSpecialPrice", it.subSpecialPrice)
-                        put("SubSpecialPriceMicros", it.subSpecialPriceMicros)
-                        put("SubSpecialPeriod", it.subSpecialPeriod)
-                        put("SubSpecialPeriodCycles", it.subSpecialPeriodCycles)
-                        put("SubFreeTrialPeriod", it.subFreeTrialPeriod)
-                        put("SubGroupId", it.subGroupId)
-                        put("SubGroupTitle", it.subGroupTitle)
-                        put("SubProductLevel", it.subProductLevel)
-                        put("Status", it.status)
-                    }
-                })
-            } else {
-                resultError("code: ${result.returnCode}  msg: ${result.errMsg}")
-            }
-        }.addOnFailureListener { e ->
-            if (e is IapApiException) {
-                resultError(e.status.toString(), null, e)
-            } else {
-                resultError(e.stackTraceToString(), null, e)
+        getActivity(activity) { a, af ->
+            val task = Iap.getIapClient(a).obtainProductInfo(req)// 调用obtainProductInfo接口获取AppGallery Connect网站配置的商品的详情信息
+            task.addOnSuccessListener { result ->
+                if (result.returnCode == 0) {
+                    resultSuccess("查询成功", null, af, result.productInfoList.map {
+                        JSONObject().apply {
+                            put("ProductId", it.productId)
+                            put("PriceType", it.priceType)
+                            put("Price", it.price)
+                            put("MicrosPrice", it.microsPrice)
+                            put("OriginalLocalPrice", it.originalLocalPrice)
+                            put("OriginalMicroPrice", it.originalMicroPrice)
+                            put("Currency", it.currency)
+                            put("ProductName", it.productName)
+                            put("ProductDesc", it.productDesc)
+                            put("SubPeriod", it.subPeriod)
+                            put("SubSpecialPrice", it.subSpecialPrice)
+                            put("SubSpecialPriceMicros", it.subSpecialPriceMicros)
+                            put("SubSpecialPeriod", it.subSpecialPeriod)
+                            put("SubSpecialPeriodCycles", it.subSpecialPeriodCycles)
+                            put("SubFreeTrialPeriod", it.subFreeTrialPeriod)
+                            put("SubGroupId", it.subGroupId)
+                            put("SubGroupTitle", it.subGroupTitle)
+                            put("SubProductLevel", it.subProductLevel)
+                            put("Status", it.status)
+                        }
+                    })
+                } else {
+                    resultError("code: ${result.returnCode}  msg: ${result.errMsg}", af)
+                }
+            }.addOnFailureListener { e ->
+                if (e is IapApiException) {
+                    resultError(e.status.toString(), af, e)
+                } else {
+                    resultError(e.stackTraceToString(), af, e)
+                }
             }
         }
     }

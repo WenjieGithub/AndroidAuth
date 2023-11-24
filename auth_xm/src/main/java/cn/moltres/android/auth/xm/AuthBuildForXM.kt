@@ -49,14 +49,14 @@ class AuthBuildForXM : AbsAuthBuildForXM() {
         MiCommplatform.getInstance().removeAllListener()
     }
 
-    private fun getActivity(activity: Activity?, callback: (Activity, Boolean) -> Unit) {
+    private fun getActivity(activity: Activity?, callback: (Activity, Activity?) -> Unit) {
         if (activity == null) {
             AuthActivityForXM.callbackActivity = {
-                callback(it, true)
+                callback(it, it)
             }
             startAuthActivity(AuthActivityForXM::class.java)
         } else {
-            callback(activity, false)
+            callback(activity, null)
         }
     }
 
@@ -77,8 +77,7 @@ class AuthBuildForXM : AbsAuthBuildForXM() {
             XMAccountType.App -> MiAccountType.APP
             XMAccountType.XM -> MiAccountType.MI_SDK
         }
-        getActivity(activity) { a, b ->
-            val af = if (b) a else null
+        getActivity(activity) { a, af ->
             MiCommplatform.getInstance().miLogin(a, { code, account ->
                 when (code) {
                     MiCode.MI_LOGIN_SUCCESS -> {            // 登录成功
@@ -129,8 +128,7 @@ class AuthBuildForXM : AbsAuthBuildForXM() {
         pay(miBuyInfo, activity)
     }
     private fun pay(miBuyInfo: MiBuyInfo, activity: Activity?) {
-        getActivity(activity) { a, b ->
-            val af = if (b) a else null
+        getActivity(activity) { a, af ->
             MiCommplatform.getInstance().miUniPay(a, miBuyInfo) { code: Int, msg: String? ->
                 when (code) {
                     MiCode.MI_PAY_SUCCESS -> resultSuccess(msg, activity = af)  // 购买成功，建议先通过自家服务器校验后再处理发货
@@ -153,8 +151,7 @@ class AuthBuildForXM : AbsAuthBuildForXM() {
         miBuyInfo.cpOrderId = orderId          // 订单号唯一（不为空）
         miBuyInfo.productCode = productCode    // 商品代码，开发者申请获得（不为空）
         miBuyInfo.quantity = quantity          // 购买数量(商品数量最大9999，最小1)（不为空）
-        getActivity(activity) { a, b ->
-            val af = if (b) a else null
+        getActivity(activity) { a, af ->
             MiCommplatform.getInstance().miSubscribe(a, miBuyInfo) { code: Int, msg: String? ->
                 when (code) {
                     MiCode.MI_SUB_SUCCESS -> resultSuccess(msg, null, af)   // 订阅成功
