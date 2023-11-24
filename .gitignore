@@ -17,3 +17,4 @@ local.properties
 build
 
 build_upload.gradle
+repo

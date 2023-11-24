@@ -15,6 +15,7 @@ dependencies {
         exclude(group: 'androidx.core')
         exclude(group: 'androidx.lifecycle')
     }
+    implementation "androidx.annotation:annotation:1.1.0"
     implementation 'com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava'
     implementation 'com.android.volley:volley:1.1.0'
     implementation 'org.greenrobot:eventbus:3.1.1'
