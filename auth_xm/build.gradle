@@ -9,7 +9,7 @@ apply from: '../build_module.gradle'
 dependencies {
     compileOnly(project(':auth'))
 
-    implementation 'com.github.Enowr:AuthForAndroidXM:3.5.3'
+    implementation 'com.github.WenjieGithub:AndroidAuthForXM:3.5.3'
     implementation('com.xiaomi.account:oauth-android:3.5.1')
     implementation ('androidx.legacy:legacy-support-v13:1.0.0'){
         exclude(group: 'androidx.core')
