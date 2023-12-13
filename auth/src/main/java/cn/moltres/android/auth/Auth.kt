@@ -20,6 +20,8 @@ object Auth {
     var xmAppKey: String? = null
 
     /** agconnect-services.json 不包含密钥时使用的参数 */
+    var hwServicesJson: String = "agconnect-services.json"
+    var hwPublicKey: String? = null
     var hwClientID: String? = null
     var hwClientSecret: String? = null
     var hwApiKey: String? = null

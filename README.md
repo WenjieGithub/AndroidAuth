@@ -31,7 +31,7 @@ ndk { abiFilters 'armeabi', 'armeabi-v7a', 'arm64-v8a' }
 ```groovy
 implementation 'androidx.appcompat:appcompat:1.x.x'
 
-def auth_version = "0.5.0"
+def auth_version = "0.6.0"
 implementation "cn.moltres.android:auth:$auth_version"
 implementation "cn.moltres.android:auth_qq:$auth_version"
 implementation "cn.moltres.android:auth_wb:$auth_version"
@@ -63,6 +63,8 @@ manifestPlaceholders = [
         XMAppId:"xxx",
         XMAppKey:"xxx",
         // 华为 (可代码配置, agconnect-services.json 不包含密钥时使用的参数, 包含无需配置)
+        HWServicesJson:"xxx",   // 配置文件名称, 默认 agconnect-services.json 
+        HWPublicKey:"xxx",      // 验签用公钥, 支付时使用, 也可通过方法参数的方式使用
         HWCpId:"xxx",
         HWAppId:"xxx",
         HWApiKey:"xxx",
@@ -97,6 +99,8 @@ Auth.wbScope = "Scope"
 Auth.xmAppId = "AppId"
 Auth.xmAppKey = "AppKey"
 // 华为 manifest 中配置过, 不用再此配置. agconnect-services.json 不包含密钥时使用的参数, 包含无需配置
+Auth.hwServicesJson = "agconnect-services-test.json"
+Auth.hwPublicKey = "key"
 Auth.hwCpId = "CpId"
 Auth.hwAppId = "AppId"
 Auth.hwApiKey = "ApiKey"

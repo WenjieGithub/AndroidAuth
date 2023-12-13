@@ -66,23 +66,22 @@ abstract class AbsAuthBuildForHW : AbsAuthBuild("HW") {
     /**
      * 购买PMS商品
      * PMS商品指在华为AppGallery Connect网站上配置的商品，支持消耗型、非消耗型和订阅型商品。
-     * @param publicKey 支付公钥, 用于验签
      * @param productId AppGallery Connect网站上配置的商品 Id
      * @param priceType: 0：消耗型商品; 1：非消耗型商品; 2：订阅型商品
      * @param developerPayload 商户侧保留信息。若该字段有值，在支付成功后的回调结果中会原样返回给应用。注意：该参数长度限制为(0, 128)。
+     * @param publicKey 支付公钥, 用于验签, 如果为空则使用初始化时的默认值
      *
      * @return JSONObject
      */
     abstract suspend fun payPMS(
-        publicKey: String,
         productId: String,
         priceType: HWPriceType,
-        developerPayload: String? = null
+        developerPayload: String? = null,
+        publicKey: String? = null,
     ): AuthResult
 
     /**
      * 购买非PMS商品 仅支持消耗型商品和非消耗型商品
-     * @param publicKey 支付公钥, 用于验签
      * @param priceType: 0: 消耗型; 1: 非消耗型
      * @param productId 应用自定义的商品ID，商品ID用于唯一标识一个商品，不能重复
      * @param productName 商品名称，由应用自定义。
@@ -92,9 +91,9 @@ abstract class AbsAuthBuildForHW : AbsAuthBuild("HW") {
      * @param currency 用于支付该商品的币种，必须符合ISO 4217标准。如果不传该参数，默认为CNY。
      * @param developerPayload 商户侧保留信息。若该字段有值，在支付成功后的回调结果中会原样返回给应用。注意：该参数长度限制为(0, 128)。
      * @param serviceCatalog 商品所属的产品类型  应用设置为”X5”(默认)
+     * @param publicKey 支付公钥, 用于验签, 如果为空则使用初始化时的默认值
      */
     abstract suspend fun payAmount(
-        publicKey: String,
         priceType: HWPriceType,
         productId: String,
         productName: String,
@@ -104,6 +103,7 @@ abstract class AbsAuthBuildForHW : AbsAuthBuild("HW") {
         currency: String = "CNY",
         developerPayload: String? = null,
         serviceCatalog: String = "X5",
+        publicKey: String? = null,
     ): AuthResult
 }
 

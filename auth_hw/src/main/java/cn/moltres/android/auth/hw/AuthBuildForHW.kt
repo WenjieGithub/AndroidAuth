@@ -36,19 +36,36 @@ import kotlin.coroutines.resume
 class AuthBuildForHW: AbsAuthBuildForHW() {
     internal companion object {
         init {
-            if (Auth.hwClientID.isNullOrEmpty() || Auth.hwClientSecret.isNullOrEmpty() || Auth.hwApiKey.isNullOrEmpty() ||
-                Auth.hwCpId.isNullOrEmpty() || Auth.hwProductId.isNullOrEmpty() || Auth.hwAppId.isNullOrEmpty()) {
+            Auth.getMetaData("HWServicesJson")?.replace("hw", "")?.let {
+                if (it.isNotEmpty()) {
+                    Auth.hwServicesJson = it
+                }
+            }
+            if (Auth.hwPublicKey.isNullOrEmpty()) {
+                Auth.hwPublicKey = Auth.getMetaData("HWPublicKey")?.replace("hw", "")
+            }
+            if (Auth.hwClientID.isNullOrEmpty()) {
                 Auth.hwClientID = Auth.getMetaData("HWClientID")?.replace("hw", "")
+            }
+            if (Auth.hwClientSecret.isNullOrEmpty()) {
                 Auth.hwClientSecret = Auth.getMetaData("HWClientSecret")?.replace("hw", "")
+            }
+            if (Auth.hwApiKey.isNullOrEmpty()) {
                 Auth.hwApiKey = Auth.getMetaData("HWApiKey")?.replace("hw", "")
+            }
+            if (Auth.hwCpId.isNullOrEmpty()) {
                 Auth.hwCpId = Auth.getMetaData("HWCpId")?.replace("hw", "")
+            }
+            if (Auth.hwProductId.isNullOrEmpty()) {
                 Auth.hwProductId = Auth.getMetaData("HWProductId")?.replace("hw", "")
+            }
+            if (Auth.hwAppId.isNullOrEmpty()) {
                 Auth.hwAppId = Auth.getMetaData("HWAppId")?.replace("hw", "")
             }
 
             try {
                 val builder = AGConnectOptionsBuilder()
-                builder.inputStream = Auth.application.assets.open("agconnect-services.json")
+                builder.inputStream = Auth.application.assets.open(Auth.hwServicesJson)
 
                 Auth.hwClientID?.let { builder.setClientId(Auth.hwClientID) }
                 Auth.hwClientSecret?.let { builder.setClientSecret(Auth.hwClientSecret) }
@@ -378,10 +395,10 @@ class AuthBuildForHW: AbsAuthBuildForHW() {
     }
 
     override suspend fun payPMS(
-        publicKey: String,
         productId: String,
         priceType: HWPriceType,
-        developerPayload: String?
+        developerPayload: String?,
+        publicKey: String?,
     ) = suspendCancellableCoroutine { coroutine ->
         mAction = "payPMS"
         mCallback = { coroutine.resume(it) }
@@ -397,7 +414,8 @@ class AuthBuildForHW: AbsAuthBuildForHW() {
                     try {
                         AuthActivityForHW.callbackActivityResult = { requestCode, _, data ->
                             if (requestCode == 4444) {
-                                payResult(activity, data, publicKey, developerPayload)
+                                val pk = publicKey ?: Auth.hwPublicKey ?: ""
+                                payResult(activity, data, pk, developerPayload)
                             } else {
                                 resultError("requestCode 异常：$requestCode", activity)
                             }
@@ -420,7 +438,6 @@ class AuthBuildForHW: AbsAuthBuildForHW() {
         startAuthActivity(AuthActivityForHW::class.java)
     }
     override suspend fun payAmount(
-        publicKey: String,
         priceType: HWPriceType,
         productId: String,
         productName: String,
@@ -429,7 +446,8 @@ class AuthBuildForHW: AbsAuthBuildForHW() {
         country: String,
         currency: String,
         developerPayload: String?,
-        serviceCatalog: String
+        serviceCatalog: String,
+        publicKey: String?,
     ) = suspendCancellableCoroutine { coroutine ->
         mAction = "payAmount"
         mCallback = { coroutine.resume(it) }
@@ -444,7 +462,8 @@ class AuthBuildForHW: AbsAuthBuildForHW() {
             req.currency = currency
             req.developerPayload = developerPayload
             req.serviceCatalog = serviceCatalog
-            payAmount(activity, req, publicKey, developerPayload)
+            val pk = publicKey ?: Auth.hwPublicKey ?: ""
+            payAmount(activity, req, pk, developerPayload)
         }
         startAuthActivity(AuthActivityForHW::class.java)
     }
