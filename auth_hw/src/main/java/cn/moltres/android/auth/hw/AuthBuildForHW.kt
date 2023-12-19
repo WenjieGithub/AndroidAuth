@@ -31,15 +31,16 @@ import java.security.spec.X509EncodedKeySpec
 import com.huawei.updatesdk.service.otaupdate.CheckUpdateCallBack
 import com.huawei.updatesdk.service.otaupdate.UpdateKey
 import com.huawei.updatesdk.service.appmgr.bean.ApkUpgradeInfo
+import kotlinx.coroutines.Dispatchers
 import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
+import kotlin.coroutines.suspendCoroutine
 
 class AuthBuildForHW: AbsAuthBuildForHW() {
     internal companion object {
         init {
             Auth.getMetaData("HWServicesJson")?.replace("hw", "")?.let {
-                if (it.isNotEmpty()) {
-                    Auth.hwServicesJson = it
-                }
+                if (it.isNotEmpty()) { Auth.hwServicesJson = it }
             }
             if (Auth.hwPublicKey.isNullOrEmpty()) {
                 Auth.hwPublicKey = Auth.getMetaData("HWPublicKey")?.replace("hw", "")
@@ -211,6 +212,16 @@ class AuthBuildForHW: AbsAuthBuildForHW() {
             callback(activity, null)
         }
     }
+    private suspend fun getActivitySus(activity: Activity?) = suspendCancellableCoroutine<Pair<Activity, Activity?>> { coroutine ->
+        if (activity == null) {
+            AuthActivityForHW.callbackActivity = {
+                coroutine.resume(Pair(it, it))
+            }
+            startAuthActivity(AuthActivityForHW::class.java)
+        } else {
+            coroutine.resume(Pair(activity, null))
+        }
+    }
 
     override suspend fun cancelAuth(activity: Activity?) = suspendCancellableCoroutine { coroutine ->
         mAction = "cancelAuth"
@@ -345,52 +356,92 @@ class AuthBuildForHW: AbsAuthBuildForHW() {
     }
 
     override suspend fun payProductQuery(
-        productList: List<String>,
-        priceType: HWPriceType,
+        productListSubs: List<String>?,
+        productListConsumable: List<String>?,
+        productListNonConsumable: List<String>?,
         activity: Activity?
-    ) = suspendCancellableCoroutine { coroutine ->
+    ) = withContext(Dispatchers.Default) {
         mAction = "payProductQuery"
-        mCallback = { coroutine.resume(it) }
-        val req = ProductInfoReq()
-        req.priceType = priceType.code       // priceType: 0：消耗型商品; 1：非消耗型商品; 2：订阅型商品
-        req.productIds = productList
-        getActivity(activity) { a, af ->
-            val task = Iap.getIapClient(a).obtainProductInfo(req)// 调用obtainProductInfo接口获取AppGallery Connect网站配置的商品的详情信息
-            task.addOnSuccessListener { result ->
-                if (result.returnCode == 0) {
-                    resultSuccess("查询成功", null, af, result.productInfoList.map {
-                        JSONObject().apply {
-                            put("ProductId", it.productId)
-                            put("PriceType", it.priceType)
-                            put("Price", it.price)
-                            put("MicrosPrice", it.microsPrice)
-                            put("OriginalLocalPrice", it.originalLocalPrice)
-                            put("OriginalMicroPrice", it.originalMicroPrice)
-                            put("Currency", it.currency)
-                            put("ProductName", it.productName)
-                            put("ProductDesc", it.productDesc)
-                            put("SubPeriod", it.subPeriod)
-                            put("SubSpecialPrice", it.subSpecialPrice)
-                            put("SubSpecialPriceMicros", it.subSpecialPriceMicros)
-                            put("SubSpecialPeriod", it.subSpecialPeriod)
-                            put("SubSpecialPeriodCycles", it.subSpecialPeriodCycles)
-                            put("SubFreeTrialPeriod", it.subFreeTrialPeriod)
-                            put("SubGroupId", it.subGroupId)
-                            put("SubGroupTitle", it.subGroupTitle)
-                            put("SubProductLevel", it.subProductLevel)
-                            put("Status", it.status)
-                        }
-                    })
-                } else {
-                    resultError("code: ${result.returnCode}  msg: ${result.errMsg}", af)
-                }
-            }.addOnFailureListener { e ->
-                if (e is IapApiException) {
-                    resultError(e.status.toString(), af, e)
-                } else {
-                    resultError(e.stackTraceToString(), af, e)
-                }
+        val productInfoList = mutableListOf<ProductInfo>()
+        val errorMsg = StringBuilder()
+        val pa = getActivitySus(activity)
+
+        if (!productListConsumable.isNullOrEmpty()) {
+            try {
+                val result = async { payProductQueryQueryRun(pa.first, productListConsumable, 0) }.await()
+                productInfoList.addAll(result)
+            } catch (e: Exception) {
+                val returnCode = if (e is IapApiException) { e.statusCode } else { -1 }     // 其他外部错误
+                errorMsg.append("消耗型商品查询异常，code=$returnCode e=${e.stackTraceToString()}")
+                errorMsg.append("\n\n       ")
             }
+        }
+        if (!productListNonConsumable.isNullOrEmpty()) {
+            try {
+                val result = async { payProductQueryQueryRun(pa.first, productListNonConsumable, 1) }.await()
+                productInfoList.addAll(result)
+            } catch (e: Exception) {
+                val returnCode = if (e is IapApiException) { e.statusCode } else { -1 }     // 其他外部错误
+                errorMsg.append("非消耗型商品查询异常，code=$returnCode e=${e.stackTraceToString()}")
+                errorMsg.append("\n\n       ")
+            }
+        }
+        if (!productListSubs.isNullOrEmpty()) {
+            try {
+                val result = async { payProductQueryQueryRun(pa.first, productListSubs, 2) }.await()
+                productInfoList.addAll(result)
+            } catch (e: Exception) {
+                val returnCode = if (e is IapApiException) { e.statusCode } else { -1 }     // 其他外部错误
+                errorMsg.append("订阅型商品查询异常，code=$returnCode e=${e.stackTraceToString()}")
+                errorMsg.append("\n\n       ")
+            }
+        }
+
+        when {
+            productInfoList.isNotEmpty() -> {
+                resultSuccess(msg = errorMsg.toString() ,activity = pa.second, any = productInfoList.map {
+                    JSONObject().apply {
+                        put("ProductId", it.productId)
+                        put("PriceType", it.priceType)
+                        put("Price", it.price)
+                        put("MicrosPrice", it.microsPrice)
+                        put("OriginalLocalPrice", it.originalLocalPrice)
+                        put("OriginalMicroPrice", it.originalMicroPrice)
+                        put("Currency", it.currency)
+                        put("ProductName", it.productName)
+                        put("ProductDesc", it.productDesc)
+                        put("SubPeriod", it.subPeriod)
+                        put("SubSpecialPrice", it.subSpecialPrice)
+                        put("SubSpecialPriceMicros", it.subSpecialPriceMicros)
+                        put("SubSpecialPeriod", it.subSpecialPeriod)
+                        put("SubSpecialPeriodCycles", it.subSpecialPeriodCycles)
+                        put("SubFreeTrialPeriod", it.subFreeTrialPeriod)
+                        put("SubGroupId", it.subGroupId)
+                        put("SubGroupTitle", it.subGroupTitle)
+                        put("SubProductLevel", it.subProductLevel)
+                        put("Status", it.status)
+                    }
+                })
+            }
+            errorMsg.isEmpty() -> resultSuccess("没有查询到数据", activity = pa.second)
+            else -> resultError(errorMsg.toString(), activity = pa.second)
+        }
+    }
+    private suspend fun payProductQueryQueryRun(activity: Activity, list: List<String>, type: Int) = suspendCoroutine<List<ProductInfo>> {
+        val req = ProductInfoReq()
+        req.priceType = type                                        // priceType: 0：消耗型商品; 1：非消耗型商品; 2：订阅型商品
+        req.productIds = list
+        val task = Iap.getIapClient(activity).obtainProductInfo(req)// 调用obtainProductInfo接口获取AppGallery Connect网站配置的商品的详情信息
+        task.addOnSuccessListener { result ->
+            it.resumeWith(runCatching {
+                if (result.returnCode == 0) {
+                    result.productInfoList                          // 获取接口请求成功时返回的商品详情信息
+                } else {
+                    throw Exception("code: ${result.returnCode}  msg: ${result.errMsg}")
+                }
+            })
+        }.addOnFailureListener { e ->
+            it.resumeWithException(e)
         }
     }
 

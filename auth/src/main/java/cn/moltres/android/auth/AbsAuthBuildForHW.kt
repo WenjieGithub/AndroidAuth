@@ -46,14 +46,17 @@ abstract class AbsAuthBuildForHW : AbsAuthBuild("HW") {
     /**
      * 支付商品列表查询
      * https://developer.huawei.com/consumer/cn/doc/development/HMSCore-References/productinfo-0000001050135784
-     * @param productList 商品列表
-     * @param priceType 商品类型 0：消耗型商品; 1：非消耗型商品; 2：订阅型商品
+     * @param productListSubs 商品列表, 订阅型商品
+     * @param productListConsumable 商品列表, 消耗型商品
+     * @param productListNonConsumable 商品列表, 非消耗型商品
+     * priceType 商品类型 0：消耗型商品; 1：非消耗型商品; 2：订阅型商品
      *
      * @return List<JSONObject>
      */
     abstract suspend fun payProductQuery(
-        productList: List<String>,
-        priceType: HWPriceType,
+        productListSubs: List<String>? = null,
+        productListConsumable: List<String>? = null,
+        productListNonConsumable: List<String>? = null,
         activity: Activity? = null
     ): AuthResult
 
