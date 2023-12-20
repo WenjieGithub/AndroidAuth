@@ -31,7 +31,7 @@ ndk { abiFilters 'armeabi', 'armeabi-v7a', 'arm64-v8a' }
 ```groovy
 implementation 'androidx.appcompat:appcompat:1.x.x'
 
-def auth_version = "0.6.0"
+def auth_version = "0.8.0"
 implementation "cn.moltres.android:auth:$auth_version"
 implementation "cn.moltres.android:auth_qq:$auth_version"
 implementation "cn.moltres.android:auth_wb:$auth_version"
@@ -44,7 +44,7 @@ implementation "cn.moltres.android:auth_ry:$auth_version"
 implementation "cn.moltres.android:auth_google:$auth_version"
 ```
 
-### app build.gradle 中配置相应平台参数，未依赖平台可忽略, 也可在代码中配置
+### app build.gradle 中配置相应平台参数(必填, 可为空字符串用代码替换)，未依赖平台可忽略, 也可在代码中配置(会替换 Manifest 中的值)
 ```groovy
 manifestPlaceholders = [
         // 微博 (可代码配置)

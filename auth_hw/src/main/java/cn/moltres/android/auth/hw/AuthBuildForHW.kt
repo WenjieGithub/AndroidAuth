@@ -68,12 +68,12 @@ class AuthBuildForHW: AbsAuthBuildForHW() {
                 val builder = AGConnectOptionsBuilder()
                 builder.inputStream = Auth.application.assets.open(Auth.hwServicesJson)
 
-                Auth.hwClientID?.let { builder.setClientId(Auth.hwClientID) }
-                Auth.hwClientSecret?.let { builder.setClientSecret(Auth.hwClientSecret) }
-                Auth.hwApiKey?.let { builder.setApiKey(Auth.hwApiKey) }
-                Auth.hwCpId?.let { builder.setCPId(Auth.hwCpId) }
-                Auth.hwProductId?.let { builder.setProductId(Auth.hwProductId) }
-                Auth.hwAppId?.let { builder.setAppId(Auth.hwAppId) }
+                if (!Auth.hwClientID.isNullOrEmpty()) { builder.setClientId(Auth.hwClientID) }
+                if (!Auth.hwClientSecret.isNullOrEmpty()) { builder.setClientSecret(Auth.hwClientSecret) }
+                if (!Auth.hwApiKey.isNullOrEmpty()) { builder.setApiKey(Auth.hwApiKey) }
+                if (!Auth.hwCpId.isNullOrEmpty()) { builder.setCPId(Auth.hwCpId) }
+                if (!Auth.hwProductId.isNullOrEmpty()) { builder.setProductId(Auth.hwProductId) }
+                if (!Auth.hwAppId.isNullOrEmpty()) { builder.setAppId(Auth.hwAppId) }
 
                 AGConnectInstance.initialize(Auth.application, builder)
             } catch (e: IOException) {
