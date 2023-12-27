@@ -1,5 +1,6 @@
 package cn.moltres.android.auth.wx
 
+import android.app.Activity
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -51,7 +52,7 @@ class AuthBuildForWX : AbsAuthBuildForWX() {
         }
     }
 
-    override fun registerCallback(callback: (result: AuthResult) -> Unit) {
+    override fun registerCallback(callback: (result: AuthResult, activity: Activity) -> Unit) {
         AuthActivityForWX.callback = callback
     }
 

@@ -31,7 +31,7 @@ ndk { abiFilters 'armeabi', 'armeabi-v7a', 'arm64-v8a' }
 ```groovy
 implementation 'androidx.appcompat:appcompat:1.x.x'
 
-def auth_version = "0.8.0"
+def auth_version = "0.9.0"
 implementation "cn.moltres.android:auth:$auth_version"
 implementation "cn.moltres.android:auth_qq:$auth_version"
 implementation "cn.moltres.android:auth_wb:$auth_version"
