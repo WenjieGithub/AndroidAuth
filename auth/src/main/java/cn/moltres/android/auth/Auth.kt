@@ -19,8 +19,8 @@ object Auth {
     var xmAppId: String? = null
     var xmAppKey: String? = null
 
-    /** agconnect-services.json 不包含密钥时使用的参数 */
-    var hwServicesJson: String = "agconnect-services.json"
+    /** agconnect-services.json 不包含密钥时使用的参数, agconnect-services.json 文件名不能修改, 否则会导致初始化失败 */
+    const val hwServicesJson: String = "agconnect-services.json"// 由于华为不同功能sdk会内部自动初始化, 所以不可配置文件名, 期待后续改进
     var hwPublicKey: String? = null
     var hwClientID: String? = null
     var hwClientSecret: String? = null

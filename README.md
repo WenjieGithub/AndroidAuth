@@ -31,7 +31,7 @@ ndk { abiFilters 'armeabi', 'armeabi-v7a', 'arm64-v8a' }
 ```groovy
 implementation 'androidx.appcompat:appcompat:1.x.x'
 
-def auth_version = "0.9.0"
+def auth_version = "0.9.2"
 implementation "cn.moltres.android:auth:$auth_version"
 implementation "cn.moltres.android:auth_qq:$auth_version"
 implementation "cn.moltres.android:auth_wb:$auth_version"
@@ -44,13 +44,14 @@ implementation "cn.moltres.android:auth_ry:$auth_version"
 implementation "cn.moltres.android:auth_google:$auth_version"
 ```
 
-### app build.gradle 中配置相应平台参数(必填, 可为空字符串用代码替换)，未依赖平台可忽略, 也可在代码中配置(会替换 Manifest 中的值)
+### app build.gradle 中配置相应平台参数
+- 必填, 可为空字符串用代码替换，未依赖平台可忽略, 也可在代码中配置(会替换 Manifest 中的值)
 ```groovy
 manifestPlaceholders = [
         // 微博 (可代码配置)
-        WBAppKey:"xxx",
-        WBScope:"xxx",
-        WBRedirectUrl:"xxx",
+        WBAppKey:"",
+        WBScope:"",
+        WBRedirectUrl:"",
         // 微信 (可代码配置)
         WXAppId:"",
         // QQ Authorities 为 Manifest 文件中注册 FileProvider 时设置的 authorities 属性值
@@ -60,17 +61,17 @@ manifestPlaceholders = [
         ZFBScheme:"xxx",
         
         // 小米 (可代码配置)
-        XMAppId:"xxx",
-        XMAppKey:"xxx",
-        // 华为 (可代码配置, agconnect-services.json 不包含密钥时使用的参数, 包含无需配置)
-        HWServicesJson:"xxx",   // 配置文件名称, 默认 agconnect-services.json 
-        HWPublicKey:"xxx",      // 验签用公钥, 支付时使用, 也可通过方法参数的方式使用
-        HWCpId:"xxx",
-        HWAppId:"xxx",
-        HWApiKey:"xxx",
-        HWClientID:"xxx",
-        HWProductId:"xxx",
-        HWClientSecret:"xxx",
+        XMAppId:"",
+        XMAppKey:"",
+        // 华为 (可代码配置, agconnect-services.json 不包含密钥时使用的参数, 包含无需配置, 由于华为sdk内部写死文件名配置, 所以文件名不可修改)
+        // 因为华为配置文件名不可修改, 如果需要线上、测试多类型打包, 可选择使用项目组件化方式构建项目, 参考 ComponentBus 项目
+        HWPublicKey:"",      // 验签用公钥, 支付时使用, 也可通过方法参数的方式使用
+        HWCpId:"",
+        HWAppId:"",
+        HWApiKey:"",
+        HWClientID:"",
+        HWProductId:"",
+        HWClientSecret:"",
         // 荣耀
         RYAppId:"xxx",
         RYCpId:"xxx"
@@ -87,7 +88,7 @@ manifestPlaceholders = [
 ```kotlin
 Auth.init(application)
 Auth.logCallback = { str ->
-    // 输出日志
+    // 配置输出日志
 }
 // 微信 manifest 中配置过 WXAppId, 不用再此配置
 Auth.wxAppId = "AppId"
@@ -99,7 +100,6 @@ Auth.wbScope = "Scope"
 Auth.xmAppId = "AppId"
 Auth.xmAppKey = "AppKey"
 // 华为 manifest 中配置过, 不用再此配置. agconnect-services.json 不包含密钥时使用的参数, 包含无需配置
-Auth.hwServicesJson = "agconnect-services-test.json"
 Auth.hwPublicKey = "key"
 Auth.hwCpId = "CpId"
 Auth.hwAppId = "AppId"

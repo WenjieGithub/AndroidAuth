@@ -6,21 +6,36 @@ import android.content.IntentSender.SendIntentException
 import android.text.TextUtils
 import android.util.Base64
 import cn.moltres.android.auth.AbsAuthBuildForHW
-import cn.moltres.android.auth.HWPriceType
 import cn.moltres.android.auth.Auth
+import cn.moltres.android.auth.HWPriceType
 import com.huawei.agconnect.AGConnectInstance
 import com.huawei.agconnect.AGConnectOptionsBuilder
 import com.huawei.hms.common.ApiException
 import com.huawei.hms.iap.Iap
 import com.huawei.hms.iap.IapApiException
-import com.huawei.hms.iap.entity.*
+import com.huawei.hms.iap.entity.ConsumeOwnedPurchaseReq
+import com.huawei.hms.iap.entity.InAppPurchaseData
+import com.huawei.hms.iap.entity.IsSandboxActivatedReq
+import com.huawei.hms.iap.entity.OrderStatusCode
+import com.huawei.hms.iap.entity.OwnedPurchasesReq
+import com.huawei.hms.iap.entity.ProductInfo
+import com.huawei.hms.iap.entity.ProductInfoReq
+import com.huawei.hms.iap.entity.PurchaseIntentReq
+import com.huawei.hms.iap.entity.PurchaseIntentWithPriceReq
+import com.huawei.hms.iap.entity.StartIapActivityReq
 import com.huawei.hms.iap.util.IapClientHelper
 import com.huawei.hms.jos.AppParams
 import com.huawei.hms.jos.JosApps
 import com.huawei.hms.support.account.AccountAuthManager
 import com.huawei.hms.support.account.request.AccountAuthParams
 import com.huawei.hms.support.account.request.AccountAuthParamsHelper
-import kotlinx.coroutines.*
+import com.huawei.updatesdk.service.appmgr.bean.ApkUpgradeInfo
+import com.huawei.updatesdk.service.otaupdate.CheckUpdateCallBack
+import com.huawei.updatesdk.service.otaupdate.UpdateKey
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.IOException
@@ -28,10 +43,6 @@ import java.nio.charset.StandardCharsets
 import java.security.KeyFactory
 import java.security.Signature
 import java.security.spec.X509EncodedKeySpec
-import com.huawei.updatesdk.service.otaupdate.CheckUpdateCallBack
-import com.huawei.updatesdk.service.otaupdate.UpdateKey
-import com.huawei.updatesdk.service.appmgr.bean.ApkUpgradeInfo
-import kotlinx.coroutines.Dispatchers
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.coroutines.suspendCoroutine
@@ -39,9 +50,9 @@ import kotlin.coroutines.suspendCoroutine
 class AuthBuildForHW: AbsAuthBuildForHW() {
     internal companion object {
         init {
-            Auth.getMetaData("HWServicesJson")?.replace("hw", "")?.let {
-                if (it.isNotEmpty()) { Auth.hwServicesJson = it }
-            }
+//            Auth.getMetaData("HWServicesJson")?.replace("hw", "")?.let {
+//                if (it.isNotEmpty()) { Auth.hwServicesJson = it }
+//            }
             if (Auth.hwPublicKey.isNullOrEmpty()) {
                 Auth.hwPublicKey = Auth.getMetaData("HWPublicKey")?.replace("hw", "")
             }
@@ -76,8 +87,22 @@ class AuthBuildForHW: AbsAuthBuildForHW() {
                 if (!Auth.hwAppId.isNullOrEmpty()) { builder.setAppId(Auth.hwAppId) }
 
                 AGConnectInstance.initialize(Auth.application, builder)
+                Auth.logCallback?.invoke("华为SDK初始化参数：${Auth.hwServicesJson} ${Auth.hwAppId}")
             } catch (e: IOException) {
                 Auth.logCallback?.invoke("华为SDK初始化失败：${e.stackTraceToString()}")
+            }
+        }
+    }
+
+    override fun isSandboxActivated(activity: Activity) {
+        val task = Iap.getIapClient(activity).isSandboxActivated(IsSandboxActivatedReq())
+        task.addOnSuccessListener {
+            Auth.logCallback?.invoke("isSandboxActivated success")
+        }.addOnFailureListener {
+            if (it is IapApiException) {
+                Auth.logCallback?.invoke("isSandboxActivated fail ${it.statusCode}  ${it.message}")
+            } else {
+                Auth.logCallback?.invoke("isSandboxActivated fail ${it.stackTraceToString()}")
             }
         }
     }

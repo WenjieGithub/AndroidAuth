@@ -3,6 +3,9 @@ package cn.moltres.android.auth
 import android.app.Activity
 
 abstract class AbsAuthBuildForHW : AbsAuthBuild("HW") {
+    /** 检查沙盒测试, 结果通过日志方式输出 */
+    abstract fun isSandboxActivated(activity: Activity)
+
     /** 程序启动后主页面调用 */
     abstract fun onActivityCreate(activity: Activity, forceUpdate: Boolean = false)
 
