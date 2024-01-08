@@ -53,7 +53,6 @@ class AuthBuildForQQ : AbsAuthBuildForQQ() {
         if (mAPI == null) {
             resultError("QQ API 初始化失败")
         } else if (mAPI?.isQQInstalled(Auth.application) == true) {
-            AuthActivityForQQ.authBuildForQQ = this
             AuthActivityForQQ.callbackActivity = { activity ->
                 val listener = object : IUiListener {
                     override fun onComplete(any: Any?) {
@@ -100,7 +99,6 @@ class AuthBuildForQQ : AbsAuthBuildForQQ() {
         if (mAPI == null) {
             resultError("初始化失败")
         } else if (mAPI?.isQQInstalled(Auth.application) == true) {
-            AuthActivityForQQ.authBuildForQQ = this
             AuthActivityForQQ.callbackActivity = { activity ->
                 val listener = object : IUiListener {
                     override fun onComplete(any: Any?) {

@@ -12,7 +12,6 @@
         <activity
             android:name="cn.moltres.android.auth.qq.AuthActivityForQQ"
             android:configChanges="keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
-            android:launchMode="singleTask"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
 
         <!-- QQ -->

@@ -6,7 +6,6 @@ import androidx.appcompat.app.AppCompatActivity
 
 class AuthActivityForGoogle : AppCompatActivity() {
     companion object {
-        internal var authBuildForGoogle: AuthBuildForGoogle? = null
         internal var callbackActivity: ((activityForGoogle: AuthActivityForGoogle) -> Unit)? = null
         internal var callbackActivityResult: ((requestCode: Int, resultCode: Int, data: Intent?) -> Unit)? = null
     }
@@ -14,18 +13,17 @@ class AuthActivityForGoogle : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         callbackActivity?.invoke(this) ?: finish()
+        callbackActivity = null
     }
 
     @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         callbackActivityResult?.invoke(requestCode, resultCode, data) ?: finish()
+        callbackActivityResult = null
     }
 
     override fun onDestroy() {
-        authBuildForGoogle = null
-        callbackActivity = null
-        callbackActivityResult = null
         super.onDestroy()
     }
 }

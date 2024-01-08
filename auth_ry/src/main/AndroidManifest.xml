@@ -16,7 +16,6 @@
         <activity
             android:name="cn.moltres.android.auth.ry.AuthActivityForRY"
             android:configChanges="keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
-            android:launchMode="singleTask"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
     </application>
 </manifest>

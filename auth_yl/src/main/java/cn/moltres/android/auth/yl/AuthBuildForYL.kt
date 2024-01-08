@@ -10,7 +10,6 @@ class AuthBuildForYL : AbsAuthBuildForYL() {
     override suspend fun pay(orderInfo: String, test: Boolean) = suspendCancellableCoroutine { coroutine ->
         mAction = "pay"
         mCallback = { coroutine.resume(it) }
-        AuthActivityForYL.authBuildForYL = this
         AuthActivityForYL.callbackActivity = { activity ->
             AuthActivityForYL.callbackActivityResult = { _, _, data ->
                 if (data != null && data.extras != null) {

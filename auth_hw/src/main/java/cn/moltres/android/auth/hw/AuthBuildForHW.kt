@@ -87,7 +87,6 @@ class AuthBuildForHW: AbsAuthBuildForHW() {
                 if (!Auth.hwAppId.isNullOrEmpty()) { builder.setAppId(Auth.hwAppId) }
 
                 AGConnectInstance.initialize(Auth.application, builder)
-                Auth.logCallback?.invoke("华为SDK初始化参数：${Auth.hwServicesJson} ${Auth.hwAppId}")
             } catch (e: IOException) {
                 Auth.logCallback?.invoke("华为SDK初始化失败：${e.stackTraceToString()}")
             }

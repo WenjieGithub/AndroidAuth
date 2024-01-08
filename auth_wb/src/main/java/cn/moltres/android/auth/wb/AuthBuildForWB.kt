@@ -69,7 +69,6 @@ class AuthBuildForWB : AbsAuthBuildForWB() {
         if (mAPI == null) {
             resultError("初始化失败")
         } else {
-            AuthActivityForWB.authBuildForWB = this
             AuthActivityForWB.callbackActivity = { activity ->
                 AuthActivityForWB.callbackActivityResult = { requestCode, resultCode, data ->
                     mAPI?.authorizeCallback(activity, requestCode, resultCode, data)
@@ -102,7 +101,6 @@ class AuthBuildForWB : AbsAuthBuildForWB() {
         if (mAPI == null) {
             resultError("初始化失败")
         } else if (mAPI?.isWBAppInstalled == true) {
-            AuthActivityForWB.authBuildForWB = this
             AuthActivityForWB.callbackActivity = { activity ->
                 AuthActivityForWB.callbackActivityResult = { _, _, data ->
                     mAPI?.doResultIntent(data, object : WbShareCallback {
@@ -143,7 +141,6 @@ class AuthBuildForWB : AbsAuthBuildForWB() {
         if (mAPI == null) {
             resultError("初始化失败")
         } else if (mAPI?.isWBAppInstalled == true) {
-            AuthActivityForWB.authBuildForWB = this
             AuthActivityForWB.callbackActivity = { activity ->
                 AuthActivityForWB.callbackActivityResult = { _, _, data ->
                     mAPI?.doResultIntent(data, object : WbShareCallback {

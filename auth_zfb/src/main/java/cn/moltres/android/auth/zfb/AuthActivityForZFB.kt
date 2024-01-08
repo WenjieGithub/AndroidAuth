@@ -13,15 +13,15 @@ class AuthActivityForZFB : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         if (authBuildForZFB == null) {
             callbackActivity?.invoke(this) ?: finish()
+            callbackActivity = null
         } else {
             authBuildForZFB?.onTreatyPayResult(intent)
+            authBuildForZFB = null
             finish()
         }
     }
 
     override fun onDestroy() {
-        authBuildForZFB = null
-        callbackActivity = null
         super.onDestroy()
     }
 }
