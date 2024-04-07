@@ -9,9 +9,9 @@
 <!--        <meta-data-->
 <!--            android:name="HWServicesJson"-->
 <!--            android:value="hw${HWServicesJson}" />-->
-        <meta-data
-            android:name="HWPublicKey"
-            android:value="hw${HWPublicKey}" />
+<!--        <meta-data-->
+<!--            android:name="HWPublicKey"-->
+<!--            android:value="hw${HWPublicKey}" />-->
         <meta-data
             android:name="HWClientID"
             android:value="hw${HWClientID}" />

@@ -53,9 +53,9 @@ class AuthBuildForHW: AbsAuthBuildForHW() {
 //            Auth.getMetaData("HWServicesJson")?.replace("hw", "")?.let {
 //                if (it.isNotEmpty()) { Auth.hwServicesJson = it }
 //            }
-            if (Auth.hwPublicKey.isNullOrEmpty()) {
-                Auth.hwPublicKey = Auth.getMetaData("HWPublicKey")?.replace("hw", "")
-            }
+//            if (Auth.hwPublicKey.isNullOrEmpty()) {
+//                Auth.hwPublicKey = Auth.getMetaData("HWPublicKey")?.replace("hw", "")
+//            }
             if (Auth.hwClientID.isNullOrEmpty()) {
                 Auth.hwClientID = Auth.getMetaData("HWClientID")?.replace("hw", "")
             }
@@ -489,8 +489,8 @@ class AuthBuildForHW: AbsAuthBuildForHW() {
                     try {
                         AuthActivityForHW.callbackActivityResult = { requestCode, _, data ->
                             if (requestCode == 4444) {
-                                val pk = publicKey ?: Auth.hwPublicKey ?: ""
-                                payResult(activity, data, pk, developerPayload)
+//                                val pk = publicKey ?: Auth.hwPublicKey ?: ""
+                                payResult(activity, data, "pk", developerPayload)
                             } else {
                                 resultError("requestCode 异常：$requestCode", activity)
                             }
@@ -537,8 +537,8 @@ class AuthBuildForHW: AbsAuthBuildForHW() {
             req.currency = currency
             req.developerPayload = developerPayload
             req.serviceCatalog = serviceCatalog
-            val pk = publicKey ?: Auth.hwPublicKey ?: ""
-            payAmount(activity, req, pk, developerPayload)
+//            val pk = publicKey ?: Auth.hwPublicKey ?: ""
+            payAmount(activity, req, "pk", developerPayload)
         }
         startAuthActivity(AuthActivityForHW::class.java)
     }
@@ -547,7 +547,7 @@ class AuthBuildForHW: AbsAuthBuildForHW() {
         task.addOnSuccessListener { result ->
             val paymentData = result.paymentData
             val paymentSignature = result.paymentSignature
-            if (doCheck(paymentData, paymentSignature, publicKey)) {
+//            if (doCheck(paymentData, paymentSignature, publicKey)) {
                 val status = result.status
                 if (status.hasResolution()) {
                     try {
@@ -565,9 +565,9 @@ class AuthBuildForHW: AbsAuthBuildForHW() {
                 } else {
                     resultError("打开结账页面失败: ${result.errMsg}", activity)
                 }
-            } else {
-                resultError("验签错误: paymentData=$paymentData paymentSignature=$paymentSignature result=$result", activity)
-            }
+//            } else {
+//                resultError("验签错误: paymentData=$paymentData paymentSignature=$paymentSignature result=$result", activity)
+//            }
         }.addOnFailureListener { e ->
             if (e is IapApiException) {
                 when (e.statusCode) {
@@ -621,7 +621,7 @@ class AuthBuildForHW: AbsAuthBuildForHW() {
                 OrderStatusCode.ORDER_STATE_SUCCESS -> {
                     val iApd = purchaseResultInfo.inAppPurchaseData
                     val iAds = purchaseResultInfo.inAppDataSignature
-                    if (doCheck(iApd, iAds, publicKey)) {
+//                    if (doCheck(iApd, iAds, publicKey)) {
                         try {
                             val d = InAppPurchaseData(iApd)
                             if (d.purchaseState == 0 || d.purchaseState == -1) {
@@ -638,37 +638,37 @@ class AuthBuildForHW: AbsAuthBuildForHW() {
                         } catch (e: Exception) {
                             resultError("订单信息解析失败", activity, e)
                         }
-                    } else {
-                        resultError("验签失败: iApd=$iApd; iAds=$iAds; purchaseResultInfo=${purchaseResultInfo}", activity)
-                    }
+//                    } else {
+//                        resultError("验签失败: iApd=$iApd; iAds=$iAds; purchaseResultInfo=${purchaseResultInfo}", activity)
+//                    }
                 }
                 else -> resultError("code: ${purchaseResultInfo.returnCode}; msg: ${purchaseResultInfo.errMsg}", activity)
             }
         }
     }
 
-    /**
-     * 校验签名信息
-     * @param content 结果字符串
-     * @param sign 签名字符串
-     * @param publicKey 支付公钥
-     * @return 是否校验通过
-     */
-    private fun doCheck(content: String, sign: String, publicKey: String): Boolean {
-        try {
-            if (!TextUtils.isEmpty(sign) && !TextUtils.isEmpty(publicKey)) {
-                val keyFactory = KeyFactory.getInstance("RSA")
-                val encodedKey = Base64.decode(publicKey, Base64.DEFAULT)
-                val pubKey = keyFactory.generatePublic(X509EncodedKeySpec(encodedKey))
-                val signature = Signature.getInstance("SHA256WithRSA")
-                signature.initVerify(pubKey)
-                signature.update(content.toByteArray(StandardCharsets.UTF_8))
-                val bSign = Base64.decode(sign, Base64.DEFAULT)
-                return signature.verify(bSign)
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-        return false
-    }
+//    /**
+//     * 校验签名信息
+//     * @param content 结果字符串
+//     * @param sign 签名字符串
+//     * @param publicKey 支付公钥
+//     * @return 是否校验通过
+//     */
+//    private fun doCheck(content: String, sign: String, publicKey: String): Boolean {
+//        try {
+//            if (!TextUtils.isEmpty(sign) && !TextUtils.isEmpty(publicKey)) {
+//                val keyFactory = KeyFactory.getInstance("RSA")
+//                val encodedKey = Base64.decode(publicKey, Base64.DEFAULT)
+//                val pubKey = keyFactory.generatePublic(X509EncodedKeySpec(encodedKey))
+//                val signature = Signature.getInstance("SHA256WithRSA")
+//                signature.initVerify(pubKey)
+//                signature.update(content.toByteArray(StandardCharsets.UTF_8))
+//                val bSign = Base64.decode(sign, Base64.DEFAULT)
+//                return signature.verify(bSign)
+//            }
+//        } catch (e: Exception) {
+//            e.printStackTrace()
+//        }
+//        return false
+//    }
 }
