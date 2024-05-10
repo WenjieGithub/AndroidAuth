@@ -1,7 +1,14 @@
 package cn.moltres.android.auth
 
+import android.app.Activity
+
 
 abstract class AbsAuthBuildForRY : AbsAuthBuild("RY") {
+    /**
+     * TODO 暂不支持 跳转到管理订阅页, 使用前先调用登陆来确保登陆
+     */
+    abstract suspend fun jumpToManageSubsPage(activity: Activity): AuthResult
+
     /** 登录功能 授权 */
     abstract suspend fun login(): AuthResult
 
@@ -16,6 +23,38 @@ abstract class AbsAuthBuildForRY : AbsAuthBuild("RY") {
      * @return List<JSONObject>
      */
     abstract suspend fun payProductQuery(productList: List<String>, priceType: RYPriceType): AuthResult
+
+    /**
+     * 购买非PMS商品 仅支持消耗型商品和非消耗型商品
+     *
+     * @param  priceType            商品类型，目前仅支持：0是消耗型商品，1为非消耗型商品
+     * @param  productId            应用自定义的商品ID，商品ID用于唯一标识一个商品，不能重复
+     * @param  price                商品金额，商品价格为1元时，此处传参100
+     * @param  promotionPrice       优惠价格
+     * @param  productName          商品名称
+     * @param  bizOrderNo           业务订单号,可以理解为游戏或app自定义订单号
+     * @param  developerPayload     商户侧保留信息，支付结果会按传入内容返回
+     * @param  currency             币种，默认中国：CNY
+     * @param  needSandboxTest      传1为沙盒测试，0为正式支付, 默认 0
+//     * @param  subPeriod            订购周期，priceType 为 2 时必传。
+//     * @param  periodUnit           订购周期单位（W：周，M：月，Y：年。订阅商品有效）
+//     * @param  secondChargeTime     第二次扣费时间（订阅型商品时传入）,格式yyyy-MM-dd
+     */
+    abstract suspend fun payAmount(
+        priceType: RYPriceType,
+        productId: String,
+        price: Long,
+        promotionPrice: Long,
+        productName: String,
+        bizOrderNo: String,
+        developerPayload: String? = null,
+
+        currency: String = "CNY",
+        needSandboxTest: Int = 0,
+//        subPeriod: Int,
+//        periodUnit: String,
+//        secondChargeTime: String,
+    ): AuthResult
 
     /**
      * 购买PMS商品

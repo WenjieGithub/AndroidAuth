@@ -19,6 +19,7 @@ import com.hihonor.iap.sdk.bean.ProductInfoReq
 import com.hihonor.iap.sdk.bean.ProductInfoResult
 import com.hihonor.iap.sdk.bean.ProductOrderIntentReq
 import com.hihonor.iap.sdk.bean.ProductOrderIntentResult
+import com.hihonor.iap.sdk.bean.ProductOrderIntentWithPriceReq
 import com.hihonor.iap.sdk.bean.PurchaseProductInfo
 import com.hihonor.iap.sdk.tasks.Task
 import com.hihonor.iap.sdk.utils.IapUtil
@@ -27,17 +28,36 @@ import org.json.JSONArray
 import org.json.JSONObject
 import kotlin.coroutines.resume
 
-
 class AuthBuildForRY: AbsAuthBuildForRY() {
     internal companion object {
         private var mAppId: String? = null
+        private var mCpId: String? = null
         init {
             mAppId = Auth.getMetaData("com.hihonor.iap.sdk.appid")?.trim()
+            mCpId = Auth.getMetaData("com.hihonor.iap.sdk.cpid")?.trim()
             require(!mAppId.isNullOrEmpty()) { "请配置 RYAppId" }
+            require(!mCpId.isNullOrEmpty()) { "请配置 RYCpId" }
         }
     }
 
-    private val iapClient: IapClient = Iap.getIapClient(Auth.application)
+    private val iapClient: IapClient = Iap.getIapClient(Auth.application, mAppId!!, mCpId!!)
+
+    override suspend fun jumpToManageSubsPage(activity: Activity) = suspendCancellableCoroutine { coroutine ->
+        mAction = "jumpToManageSubsPage"
+        mCallback = { coroutine.resume(it) }
+//        val req = StartIapActivityReq()
+//        req.type = StartIapActivityReq.TYPE_SUBSCRIBE_MANAGER_ACTIVITY
+//        val mClient = Iap.getIapClient(activity)
+//        val task = mClient.startIapActivity(req)
+//        task.addOnSuccessListener { result ->
+//            result?.startActivity(activity)     // 请求成功，需拉起IAP返回的页面
+//            resultSuccess()
+//        }.addOnFailureListener {
+//            resultError(it?.message, null, it)
+//        }.addOnCanceledListener {
+//            resultCancel()
+//        }
+    }
 
     override suspend fun login() = suspendCancellableCoroutine { coroutine ->
         mAction = "login"
@@ -139,6 +159,68 @@ class AuthBuildForRY: AbsAuthBuildForRY() {
         }
     }
 
+    override suspend fun payAmount(
+        priceType: RYPriceType,
+        productId: String,
+        price: Long,
+        promotionPrice: Long,
+        productName: String,
+        bizOrderNo: String,
+        developerPayload: String?,
+
+        currency: String,
+        needSandboxTest: Int,
+//        subPeriod: Int,
+//        periodUnit: String,
+//        secondChargeTime: String,
+    ) = suspendCancellableCoroutine { coroutine ->
+        mAction = "payAmount"
+        mCallback = { coroutine.resume(it) }
+
+        val req = ProductOrderIntentWithPriceReq()
+        req.productType = priceType.code            // 商品类型，目前仅支持：0是消耗型商品，1为非消耗型商品
+        req.productId = productId                   // 商品ID
+        req.price = price                           // 价格，商品价格为1元时，此处传参100
+        req.promotionPrice = promotionPrice         // 优惠价格
+        req.productName = productName               // 商品名称
+        req.bizOrderNo = bizOrderNo                 // 业务订单号,可以理解为游戏或app自定义订单号
+        req.developerPayload = developerPayload     // 商户侧保留信息，支付结果会按传入内容返回
+        req.currency = currency                     // 币种，中国：CNY
+        req.needSandboxTest = needSandboxTest       // 传1为沙盒测试，0为正式支付
+//        req.subPeriod = subPeriod                   // 订购周期，productType为2时必传。
+//        req.periodUnit = periodUnit                 // 订购周期单位（W：周，M：月，Y：年。订阅商品有效）
+//        req.secondChargeTime = secondChargeTime     // 第二次扣费时间（订阅型商品时传入）,格式yyyy-MM-dd
+
+        // 以上具体参数介绍参考《荣耀应用内支付SDK接口文档》
+        // 防止掉单 创建订单前，需要调用obtainOwnedPurchases 查询已购买，未消耗的商品，进行消耗
+        val productOrderIntent: Task<ProductOrderIntentResult> = iapClient.createProductOrderIntentWithPrice(req)
+        productOrderIntent.addOnSuccessListener { createProductOrderResp ->
+            val intent = createProductOrderResp.intent
+            if (intent != null) {
+                AuthActivityForRY.callbackActivity = { activity ->
+                    AuthActivityForRY.callbackActivityResult = { requestCode, resultCode, data ->
+                        // 客户端并不能100%确保支付结果回调
+                        if (requestCode == 5555) {
+                            if (resultCode == Activity.RESULT_OK) {
+                                payResult(activity, data)
+                            } else {
+                                resultCancel(activity)  // 取消支付
+                            }
+                        } else {
+                            resultError("requestCode 异常：$requestCode", activity)
+                        }
+                    }
+                    activity.startActivityForResult(intent, 5555)
+                }
+                startAuthActivity(AuthActivityForRY::class.java)
+            } else {
+                resultError("创建订单失败", null)
+            }
+        }.addOnFailureListener { e: com.hihonor.iap.framework.data.ApiException ->
+            //e.errorCode 对应 OrderStatusCode的值
+            resultError(e.message, null, null, e.errorCode)
+        }
+    }
     override suspend fun payPMS(
         productId: String,
         priceType: RYPriceType,
