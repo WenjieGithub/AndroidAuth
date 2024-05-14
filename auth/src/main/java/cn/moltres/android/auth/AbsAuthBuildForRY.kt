@@ -63,13 +63,15 @@ abstract class AbsAuthBuildForRY : AbsAuthBuild("RY") {
      * @param productId 平台上配置的商品 Id
      * @param priceType: 0：消耗型商品; 1：非消耗型商品; 2：订阅型商品
      * @param developerPayload 商户侧保留信息。若该字段有值，在支付成功后的回调结果中会原样返回给应用。
+     * @param  needSandboxTest      传1为沙盒测试，0为正式支付, 默认 0
      *
      * @return JSONObject
      */
     abstract suspend fun payPMS(
         productId: String,
         priceType: RYPriceType,
-        developerPayload: String? = null
+        developerPayload: String? = null,
+        needSandboxTest: Int = 0,
     ): AuthResult
 
     /**

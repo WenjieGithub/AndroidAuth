@@ -224,7 +224,8 @@ class AuthBuildForRY: AbsAuthBuildForRY() {
     override suspend fun payPMS(
         productId: String,
         priceType: RYPriceType,
-        developerPayload: String?
+        developerPayload: String?,
+        needSandboxTest: Int,
     ) = suspendCancellableCoroutine { coroutine ->
         mAction = "payPMS"
         mCallback = { coroutine.resume(it) }
@@ -233,7 +234,7 @@ class AuthBuildForRY: AbsAuthBuildForRY() {
         productOrderIntentReq.productId = productId
         productOrderIntentReq.productType = priceType.code
         productOrderIntentReq.developerPayload = developerPayload
-        // productOrderIntentReq.setNeedSandboxTest(1);//传1为沙盒测试
+        productOrderIntentReq.needSandboxTest = needSandboxTest //传1为沙盒测试
         // 防止掉单 创建订单前，需要调用obtainOwnedPurchases 查询已购买，未消耗的商品，进行消耗
         val productOrderIntent: Task<ProductOrderIntentResult> = iapClient.createProductOrderIntent(productOrderIntentReq)
         productOrderIntent.addOnSuccessListener { createProductOrderResp ->
