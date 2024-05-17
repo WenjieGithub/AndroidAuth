@@ -292,6 +292,9 @@ class AuthBuildForRY: AbsAuthBuildForRY() {
                             jo.put("price", purchaseProductInfo.price)
                             jo.put("displayPrice", purchaseProductInfo.displayPrice)
                             jo.put("purchaseState", purchaseProductInfo.purchaseState)
+                            jo.put("sigAlgorithm", purchaseResultInfo.sigAlgorithm)
+                            jo.put("purchaseProductInfo", purchaseResultInfo.purchaseProductInfo)
+                            jo.put("purchaseProductInfoSig", purchaseResultInfo.purchaseProductInfoSig)
                             resultSuccess("支付成功", jo.toString(), activity, jo)
                         }
                         PurchaseProductInfo.PurchaseState.UNPAID, PurchaseProductInfo.PurchaseState.PAID_FAILED -> {
