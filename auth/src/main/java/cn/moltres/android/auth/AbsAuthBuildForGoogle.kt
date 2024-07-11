@@ -40,7 +40,7 @@ abstract class AbsAuthBuildForGoogle : AbsAuthBuild("Google") {
         googleProductDetails: GoogleProductDetails,
         selectedOfferToken: String?,
         oldPurchaseToken: String?,
-        prorationMode: ProrationMode = ProrationMode.IMMEDIATE_AND_CHARGE_FULL_PRICE,
+        prorationMode: ReplacementMode = ReplacementMode.CHARGE_FULL_PRICE,
         isOfferPersonalized: Boolean = false
     ): AuthResult
 
@@ -100,13 +100,13 @@ abstract class AbsAuthBuildForGoogle : AbsAuthBuild("Google") {
 enum class GoogleProductType {
     INAPP, SUBS
 }
-enum class ProrationMode(val code: Int) {
-    UNKNOWN_SUBSCRIPTION_UPGRADE_DOWNGRADE_POLICY(0),
-    IMMEDIATE_WITH_TIME_PRORATION(1),
-    IMMEDIATE_AND_CHARGE_PRORATED_PRICE(2),
-    IMMEDIATE_WITHOUT_PRORATION(3),
-    DEFERRED(4),
-    IMMEDIATE_AND_CHARGE_FULL_PRICE(5)
+enum class ReplacementMode(val code: Int) {
+    UNKNOWN_REPLACEMENT_MODE(0),
+    WITH_TIME_PRORATION(1),
+    CHARGE_PRORATED_PRICE(2),
+    WITHOUT_PRORATION(3),
+    CHARGE_FULL_PRICE(5),
+    DEFERRED(6),
 }
 
 /**

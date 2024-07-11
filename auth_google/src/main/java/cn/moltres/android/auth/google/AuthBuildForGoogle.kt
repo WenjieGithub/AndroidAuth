@@ -4,8 +4,8 @@ import android.app.Activity
 import cn.moltres.android.auth.AbsAuthBuildForGoogle
 import cn.moltres.android.auth.GoogleProductDetails
 import cn.moltres.android.auth.GoogleProductType
-import cn.moltres.android.auth.ProrationMode
 import cn.moltres.android.auth.Auth
+import cn.moltres.android.auth.ReplacementMode
 import com.android.billingclient.api.*
 import com.android.billingclient.api.BillingClient.ProductType
 import kotlinx.coroutines.*
@@ -38,9 +38,10 @@ class AuthBuildForGoogle: AbsAuthBuildForGoogle() {
                                 Auth.logCallback?.invoke("$with-setPurchasesUpdatedListener: $this")
                             }
                         )
+                    } else {
+                        Auth.logCallback?.invoke("newBuilder Listener: ${billingResult.responseCode}  ${billingResult.debugMessage}")
                     }
                 }
-                .enablePendingPurchases()
                 .build()
         }
         if (mClient?.connectionState != BillingClient.ConnectionState.CONNECTED) {
@@ -83,19 +84,17 @@ class AuthBuildForGoogle: AbsAuthBuildForGoogle() {
         } else {
             initClient {
                 val queryProductDetailsParams = QueryProductDetailsParams.newBuilder()
-                    .setProductList(
-                        productList.map { productId ->
-                            QueryProductDetailsParams.Product.newBuilder()
-                                .setProductId(productId)
-                                .setProductType(
-                                    when (productType) {
-                                        GoogleProductType.INAPP -> ProductType.INAPP
-                                        GoogleProductType.SUBS -> ProductType.SUBS
-                                    }
-                                )
-                                .build()
-                        }
-                    )
+                    .setProductList(productList.map { productId ->
+                        QueryProductDetailsParams.Product.newBuilder()
+                            .setProductId(productId)
+                            .setProductType(
+                                when (productType) {
+                                    GoogleProductType.INAPP -> ProductType.INAPP
+                                    GoogleProductType.SUBS -> ProductType.SUBS
+                                }
+                            )
+                            .build()
+                    })
                     .build()
                 mClient?.queryProductDetailsAsync(queryProductDetailsParams) { billingResult, productDetailsList ->
                     when (billingResult.responseCode) {
@@ -169,7 +168,7 @@ class AuthBuildForGoogle: AbsAuthBuildForGoogle() {
         googleProductDetails: GoogleProductDetails,
         selectedOfferToken: String?,
         oldPurchaseToken: String?,
-        prorationMode: ProrationMode,
+        replacementMode: ReplacementMode,
         isOfferPersonalized: Boolean,
     ) = suspendCancellableCoroutine { coroutine ->
         mAction = "pay"
@@ -203,7 +202,7 @@ class AuthBuildForGoogle: AbsAuthBuildForGoogle() {
                         setSubscriptionUpdateParams(
                             BillingFlowParams.SubscriptionUpdateParams.newBuilder()
                                 .setOldPurchaseToken(oldPurchaseToken)
-                                .setReplaceProrationMode(prorationMode.code)
+                                .setSubscriptionReplacementMode(replacementMode.code)
                                 .build()
                         )
                     }
