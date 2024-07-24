@@ -42,6 +42,7 @@ class AuthBuildForGoogle: AbsAuthBuildForGoogle() {
                         Auth.logCallback?.invoke("newBuilder Listener: ${billingResult.responseCode}  ${billingResult.debugMessage}")
                     }
                 }
+                .enablePendingPurchases()
                 .build()
         }
         if (mClient?.connectionState != BillingClient.ConnectionState.CONNECTED) {

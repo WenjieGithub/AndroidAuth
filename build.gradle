@@ -8,5 +8,5 @@ plugins {
 ext {
     isDev = false
     groupId = 'cn.moltres.android'
-    authVersion = '1.0.1'
+    authVersion = '1.0.2'
 }
