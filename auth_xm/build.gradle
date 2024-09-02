@@ -9,14 +9,9 @@ apply from: '../build_module.gradle'
 dependencies {
     compileOnly(project(':auth'))
 
-    implementation 'com.github.WenjieGithub:AndroidAuthForXM:3.5.3'
+    implementation 'com.github.WenjieGithub:AndroidAuthForXM:3.6.0'
     implementation('com.xiaomi.account:oauth-android:3.5.1')
-    implementation ('androidx.legacy:legacy-support-v13:1.0.0'){
-        exclude(group: 'androidx.core')
-        exclude(group: 'androidx.lifecycle')
-    }
-    implementation "androidx.annotation:annotation:1.1.0"
-    implementation 'com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava'
-    implementation 'com.android.volley:volley:1.1.0'
-    implementation 'org.greenrobot:eventbus:3.1.1'
+//    implementation "androidx.annotation:annotation:1.1.0"
+//    implementation 'com.android.volley:volley:1.1.0'
+//    implementation 'org.greenrobot:eventbus:3.1.1'
 }

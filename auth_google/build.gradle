@@ -7,7 +7,7 @@ apply from: '../build_module.gradle'
 
 dependencies {
     compileOnly(project(':auth'))
-    implementation ("com.android.billingclient:billing-ktx:6.0.0") {
+    implementation ("com.android.billingclient:billing-ktx:6.0.1") {
 //        exclude(group: 'androidx.core')
     }
 }
