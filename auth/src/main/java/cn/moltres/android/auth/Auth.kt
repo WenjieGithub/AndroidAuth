@@ -8,7 +8,7 @@ import java.lang.reflect.InvocationTargetException
 object Auth {
     lateinit var application: Application
     var logCallback: ((String) -> Unit)? = null
-    val separatorLine = System.getProperty("line.separator") ?: "\n"        // 换行符
+    val separatorLine = System.lineSeparator() ?: "\n"        // 换行符
 
     var wxAppId: String? = null
 

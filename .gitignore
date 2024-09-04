@@ -13,8 +13,8 @@
 .externalNativeBuild
 .cxx
 local.properties
+
 .idea
 build
-
 build_upload.gradle
 repo

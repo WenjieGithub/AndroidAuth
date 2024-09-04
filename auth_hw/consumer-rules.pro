@@ -1,5 +1,3 @@
-# Auth
--keep class love.nuoyan.android.auth.hw.* { *; }
 # 华为
 -ignorewarnings
 -keepattributes *Annotation*

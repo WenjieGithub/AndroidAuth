@@ -2,7 +2,6 @@ package cn.moltres.android.auth
 
 import android.content.Intent
 import android.net.Uri
-import android.os.Build
 
 object AuthBuildForMore : AbsAuthBuild("More") {
     /**
@@ -81,9 +80,7 @@ object AuthBuildForMore : AbsAuthBuild("More") {
         }
         shareIntent.type = "image/*"
         shareIntent.putExtra(Intent.EXTRA_STREAM, image)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-        }
+        shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         shareIntent.setPackage(packageName)
         return if (Auth.isInstalled(packageName, shareIntent)) {
             shareIntent = Intent.createChooser(shareIntent, chooser)

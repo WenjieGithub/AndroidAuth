@@ -1,6 +1,12 @@
 pluginManagement {
     repositories {
-        google()
+        google {
+            content {
+                includeGroupByRegex("com\\.android.*")
+                includeGroupByRegex("com\\.google.*")
+                includeGroupByRegex("androidx.*")
+            }
+        }
         mavenCentral()
         gradlePluginPortal()
     }
@@ -23,18 +29,25 @@ dependencyResolutionManagement {
             }
             url 'https://packages.aliyun.com/maven/repository/2028284-release-awMPKn/'
         }
+        maven {
+            url "https://repos.xiaomi.com/maven"
+            credentials {
+                username 'mi-gamesdk'
+                password 'AKCp8mYeLuhuaGj6bK1XK7t2w4CsPuGwg6GpQdZ9cat7K59y5sD7Tx3dHjJcFrBGj3TQ4vi7g'
+            }
+        }
     }
 }
 
 rootProject.name = "AndroidAuth"
 include ':app'
 include ':auth'
-include ':auth_wx'
-include ':auth_wb'
-include ':auth_qq'
-include ':auth_zfb'
 include ':auth_google'
 include ':auth_hw'
+include ':auth_qq'
+include ':auth_ry'
+include ':auth_wb'
+include ':auth_wx'
 include ':auth_xm'
 include ':auth_yl'
-include ':auth_ry'
+include ':auth_zfb'

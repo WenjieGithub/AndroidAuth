@@ -1,6 +1,3 @@
-# Auth
--keep class cn.moltres.android.auth.zfb.* { *; }
-
 # 支付宝
 -keep class com.alipay.android.app.IAlixPay{*;}
 -keep class com.alipay.android.app.IAlixPay$Stub{*;}

@@ -1,5 +1,3 @@
-# Auth
--keep class cn.moltres.android.auth.xm.* { *; }
 # 小米
 -keepattributes InnerClasses,Signature,Exceptions,Deprecated,*Annotation*
 
