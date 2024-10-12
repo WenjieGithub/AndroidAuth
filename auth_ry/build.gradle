@@ -8,7 +8,8 @@ apply from: '../build_module.gradle'
 dependencies {
     compileOnly(project(':auth'))
 
-    implementation 'com.hihonor.mcs:honorid-opensdk:8.0.1.351'
+    implementation 'com.github.WenjieGithub:AndroidAuthForRY:2.0.5.301'
+
     implementation ('com.hihonor.mcs:iap-sdk:8.0.5.300') {
         exclude(group: 'androidx.appcompat')
     }

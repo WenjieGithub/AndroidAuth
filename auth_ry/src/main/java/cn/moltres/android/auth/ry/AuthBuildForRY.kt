@@ -2,14 +2,14 @@ package cn.moltres.android.auth.ry
 
 import android.app.Activity
 import android.content.Intent
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import cn.moltres.android.auth.AbsAuthBuildForRY
 import cn.moltres.android.auth.Auth
 import cn.moltres.android.auth.RYPriceType
-import com.hihonor.cloudservice.common.ApiException
-import com.hihonor.cloudservice.support.account.HonorIdSignInManager
-import com.hihonor.cloudservice.support.account.request.SignInOptionBuilder
-import com.hihonor.cloudservice.support.account.request.SignInOptions
-import com.hihonor.honorid.core.helper.handler.ErrorStatus
+import com.hihonor.appmarketjointsdk.bean.init.AppParams
+import com.hihonor.appmarketjointsdk.callback.APICallback
+import com.hihonor.appmarketjointsdk.sdk.AMJointSdk
 import com.hihonor.iap.framework.utils.JsonUtil
 import com.hihonor.iap.sdk.Iap
 import com.hihonor.iap.sdk.IapClient
@@ -23,7 +23,9 @@ import com.hihonor.iap.sdk.bean.ProductOrderIntentWithPriceReq
 import com.hihonor.iap.sdk.bean.PurchaseProductInfo
 import com.hihonor.iap.sdk.tasks.Task
 import com.hihonor.iap.sdk.utils.IapUtil
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 import org.json.JSONArray
 import org.json.JSONObject
 import kotlin.coroutines.resume
@@ -59,61 +61,49 @@ class AuthBuildForRY: AbsAuthBuildForRY() {
 //        }
     }
 
+    override fun onActivityCreate(activity: AppCompatActivity) {
+        activity.lifecycleScope.launch(Main) {
+            val appParams = AppParams.Builder()
+                .appId(mAppId) //从荣耀开发者平台获取的appid
+                .setUserPrivacyState(true) //设置用户协议状态
+                .build()
+            AMJointSdk.init(appParams, object : APICallback {
+                override fun onSuccess(result: String) {
+                    // 初始化成功，执行进入应用逻辑
+                    Auth.logCallback?.invoke("荣耀初始化成功 $result")
+                }
+                override fun onFailure(errorCode: Int, message: String) {
+                    // 错误逻辑
+                    Auth.logCallback?.invoke("荣耀初始化失败 code: $errorCode   meg: $message")
+                }
+            })
+        }
+    }
+
     override suspend fun login() = suspendCancellableCoroutine { coroutine ->
         mAction = "login"
         mCallback = { coroutine.resume(it) }
 
-        AuthActivityForRY.callbackActivity = { activity ->
-            val signInOptions = SignInOptionBuilder(SignInOptions.DEFAULT_AUTH_REQUEST_PARAM)
-                .setClientId(mAppId)
-                .createParams()
-            HonorIdSignInManager.getService(activity, signInOptions)
-                .silentSignIn()
-                .addOnSuccessListener { signInAccountInfo ->
-                    resultSuccess(signInAccountInfo.toString(), signInAccountInfo.authorizationCode, activity, signInAccountInfo.toJsonObject())
+        AMJointSdk.doLogin(object : APICallback {
+            override fun onSuccess(resultMessage: String?) {
+                //调用登录成功，返回用户信息！进行json解析
+                if (resultMessage.isNullOrEmpty()) {
+                    resultError("调用登录成功,但信息为空")
+                } else {
+                    val jsonObject = JSONObject(resultMessage)
+                    val openId = jsonObject.optString("openId") //荣耀用户标识，同一用户在不同appid下openID不同
+                    val unionId = jsonObject.optString("unionId") //荣耀用户标识，同一用户在同一个开发者下unionId相同
+                    val unionToken = jsonObject.optString("unionToken") //联运SDK授权用户身份信息
+                    val displayName = jsonObject.optString("displayName") //用户名称
+                    val headPictureURL = jsonObject.optString("headPictureURL") //用户头像地址，没有头像时为""
+                    resultSuccess("调用登录成功", unionToken, null, jsonObject)
                 }
-                .addOnFailureListener { e ->
-                    val exception = e as ApiException
-                    when (exception.statusCode) {
-                        // 如果 silentSignIn 接口返回“55：范围未授权” 或“31：账号尚未登录”，然后跳转到授权页面;
-                        ErrorStatus.ERROR_SCOPES_NOT_AUTHORIZE, ErrorStatus.ACCOUNT_NON_LOGIN -> {
-                            AuthActivityForRY.callbackActivityResult = { requestCode, resultCode, data ->
-                                if (requestCode == 1001) {
-                                    // 授权页面回调
-                                    val accountTask = HonorIdSignInManager.parseAuthResultFromIntent(resultCode, data)
-                                    if (accountTask.isSuccessful) {
-                                        // 登录成功，获取到账号信息对象signInAccountInfo
-                                        val signInAccountInfo = accountTask.result
-                                        resultSuccess(signInAccountInfo.toString(), signInAccountInfo.authorizationCode, activity, signInAccountInfo.toJsonObject())
-                                    } else {
-                                        val ae = accountTask.exception
-                                        // 登录失败，详情请参考 API 参考中的状态码
-                                        if (ae is ApiException) {
-                                            resultError(ae.message, activity, ae, ae.statusCode)
-                                        } else {
-                                            resultError(ae.message, activity, ae)
-                                        }
-                                    }
-                                } else {
-                                    resultError("requestCode 异常：$requestCode", activity)
-                                }
-                            }
-                            val si = SignInOptionBuilder(SignInOptions.DEFAULT_AUTH_REQUEST_PARAM)
-                                .setClientId(mAppId)
-                                .createParams()
-                            val signInIntent = HonorIdSignInManager.getService(activity, si).signInIntent
-                            if (signInIntent == null) {
-                                resultError("${exception.message}; Honor version too low", activity, e, exception.statusCode)
-                            } else {
-                                activity.startActivityForResult(signInIntent, 1001)
-                            }
-                        }
-                        ErrorStatus.ERROR_OPER_CANCEL, ErrorStatus.ERROR_CANCEL_AUTH -> resultCancel(activity)
-                        else -> resultError(exception.message, activity, e, exception.statusCode)
-                    }
-                }
-        }
-        startAuthActivity(AuthActivityForRY::class.java)
+            }
+            override fun onFailure(resultCode: Int, resultMessage: String) {
+                //失败的话，查看code和msg信息，也可以重新调用登录接口，再次尝试
+                resultError(resultMessage, null, null, resultCode)
+            }
+        })
     }
 
     override suspend fun payCheck() = suspendCancellableCoroutine { coroutine ->

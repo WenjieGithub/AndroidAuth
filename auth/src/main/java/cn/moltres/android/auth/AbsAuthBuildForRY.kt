@@ -1,6 +1,7 @@
 package cn.moltres.android.auth
 
 import android.app.Activity
+import androidx.appcompat.app.AppCompatActivity
 
 
 abstract class AbsAuthBuildForRY : AbsAuthBuild("RY") {
@@ -8,6 +9,9 @@ abstract class AbsAuthBuildForRY : AbsAuthBuild("RY") {
      * TODO 暂不支持 跳转到管理订阅页, 使用前先调用登陆来确保登陆
      */
     abstract suspend fun jumpToManageSubsPage(activity: Activity): AuthResult
+
+    /** 程序启动后主页面调用 */
+    abstract fun onActivityCreate(activity: AppCompatActivity)
 
     /** 登录功能 授权 */
     abstract suspend fun login(): AuthResult
