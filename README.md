@@ -188,7 +188,7 @@ Auth.withHW.purchaseHistoryQuery(activity, 0, false)
 
 - [Google Pay billing-ktx:6.0.1](https://developer.android.com/google/play/billing/integrate#fetch)
 - [华为联运: 6.4.0](https://developer.huawei.com/consumer/cn/doc/development/HMS-Guides/iap-development-guide-v4)
-- [小米联运: 3.5.3](https://dev.mi.com/distribute/doc/details?pId=1150#6)
+- [小米联运: 3.6.2](https://dev.mi.com/xiaomihyperos/documentation/detail?pId=1972)
 - [银联: 3.5.9](https://open.unionpay.com/tjweb/doc/mchnt/list?productId=3)
 - [荣耀: 8.0.5](https://developer.hihonor.com/cn/kitdoc?category=%E5%9F%BA%E7%A1%80%E6%9C%8D%E5%8A%A1&kitId=11001&navigation=guides&docId=android-intergrate-sdk.md)
 - [荣耀联运: 2.0.5.301](https://developer.honor.com/cn/doc/guides/101243)
