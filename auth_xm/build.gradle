@@ -9,9 +9,15 @@ apply from: '../build_module.gradle'
 dependencies {
     compileOnly(project(':auth'))
 
-    implementation 'com.github.WenjieGithub:AndroidAuthForXM:3.6.0'
-    implementation('com.xiaomi.account:oauth-android:3.5.1')
+    implementation 'com.xiaomi.gamevenus:milink-compat:4.0.45'
+    implementation "com.xiaomi.gamecenter.sdk:onetrack-sdk:2.2.5"
+    implementation 'com.xiaomi.account:passportsdk-account-oauth:6.1.6'
+    implementation('com.xiaomi.gamecenter.sdk:miappjoint:3.6.2') {
+//        exclude(group: 'com.google.protobuf')
+    }
+
 //    implementation "androidx.annotation:annotation:1.1.0"
+//    implementation 'com.google.code.gson:gson:2.8.6'
 //    implementation 'com.android.volley:volley:1.1.0'
 //    implementation 'org.greenrobot:eventbus:3.1.1'
 }

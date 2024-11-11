@@ -193,7 +193,7 @@ class AuthBuildForHW: AbsAuthBuildForHW() {
                             } else {
                                 val authAccountTask = AccountAuthManager.parseAuthResultFromIntent(data)
                                 when {
-                                    authAccountTask.isSuccessful -> resultSuccess(authAccountTask.result.toString(), authAccountTask.result.authorizationCode, activity)
+                                    authAccountTask.isSuccessful -> resultSuccess(authAccountTask.result.toJson(), authAccountTask.result.authorizationCode, activity)
                                     authAccountTask.isCanceled -> resultCancel(activity)
                                     else -> {
                                         val e = authAccountTask.exception

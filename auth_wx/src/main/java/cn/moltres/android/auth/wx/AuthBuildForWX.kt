@@ -15,6 +15,7 @@ import com.tencent.mm.opensdk.constants.ConstantsAPI
 import com.tencent.mm.opensdk.modelbiz.OpenWebview
 import com.tencent.mm.opensdk.modelbiz.WXLaunchMiniProgram
 import com.tencent.mm.opensdk.modelbiz.WXOpenBusinessWebview
+import com.tencent.mm.opensdk.modelbiz.WXOpenCustomerServiceChat
 import com.tencent.mm.opensdk.modelmsg.*
 import com.tencent.mm.opensdk.modelpay.PayReq
 import com.tencent.mm.opensdk.openapi.IWXAPI
@@ -86,6 +87,23 @@ class AuthBuildForWX : AbsAuthBuildForWX() {
                 2 -> WXLaunchMiniProgram.Req.MINIPROGRAM_TYPE_PREVIEW
                 else -> WXLaunchMiniProgram.Req.MINIPTOGRAM_TYPE_RELEASE
             }
+            mAPI?.sendReq(req)
+            resultSuccess()
+        }
+    }
+
+    override fun launchCustomerService(id: String, url: String): AuthResult {
+        mAction = "launchMiniProgram"
+        return if (mAPI == null) {
+            resultError("初始化失败")
+        } else if (mAPI?.isWXAppInstalled != true) {
+            resultUninstalled()
+        } else if (mAPI!!.wxAppSupportAPI < com.tencent.mm.opensdk.constants.Build.SUPPORT_OPEN_CUSTOMER_SERVICE_CHAT) {
+            resultError("不支持的版本")
+        } else {
+            val req = WXOpenCustomerServiceChat.Req()
+            req.corpId = id
+            req.url = url
             mAPI?.sendReq(req)
             resultSuccess()
         }

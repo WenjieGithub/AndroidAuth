@@ -18,6 +18,8 @@ abstract class AbsAuthBuildForWX : AbsAuthBuild("WX") {
      */
     abstract fun launchMiniProgram(id: String, path: String, type: Int = 0): AuthResult
 
+    abstract fun launchCustomerService(id: String, url: String): AuthResult
+
     /** 登录功能 */
     abstract suspend fun login(): AuthResult
 

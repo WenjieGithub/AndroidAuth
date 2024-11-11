@@ -11,6 +11,7 @@
 maven { url 'https://jitpack.io' }                              // jitpack仓库
 maven { url 'https://developer.huawei.com/repo/' }              // 华为仓库
 maven { url 'https://developer.hihonor.com/repo' }              // 荣耀仓库
+maven { url 'https://developer.honor.com/repo' }                // 荣耀仓库
 maven { url 'https://maven.aliyun.com/repository/google' }      // 小米有些库需要jcenter
 maven { url 'https://maven.aliyun.com/repository/public' }      // 小米有些库需要jcenter
 maven {                                                         // 小米仓库
@@ -19,6 +20,13 @@ maven {                                                         // 小米仓库
         password 'NQwPJAa42nlV'
     }
     url 'https://packages.aliyun.com/maven/repository/2028284-release-awMPKn/'
+}
+maven {
+    url "https://repos.xiaomi.com/maven"
+    credentials {
+        username 'mi-gamesdk'
+        password 'AKCp8mYeLuhuaGj6bK1XK7t2w4CsPuGwg6GpQdZ9cat7K59y5sD7Tx3dHjJcFrBGj3TQ4vi7g'
+    }
 }
 ```
 
@@ -31,7 +39,7 @@ ndk { abiFilters 'armeabi', 'armeabi-v7a', 'arm64-v8a' }
 ```groovy
 implementation 'androidx.appcompat:appcompat:1.x.x'
 
-def auth_version = "0.9.6"
+def auth_version = "1.1.0"
 implementation "cn.moltres.android:auth:$auth_version"
 implementation "cn.moltres.android:auth_qq:$auth_version"
 implementation "cn.moltres.android:auth_wb:$auth_version"
@@ -65,7 +73,7 @@ manifestPlaceholders = [
         XMAppKey:"",
         // 华为 (可代码配置, agconnect-services.json 不包含密钥时使用的参数, 包含无需配置, 由于华为sdk内部写死文件名配置, 所以文件名不可修改)
         // 因为华为配置文件名不可修改, 如果需要线上、测试多类型打包, 可选择使用项目组件化方式构建项目, 参考 ComponentBus 项目
-        HWPublicKey:"",      // 验签用公钥, 支付时使用, 也可通过方法参数的方式使用
+        HWPublicKey:"",      // 验签用公钥, 支付时使用, 也可通过方法参数的方式使用 TODO 暂不使用
         HWCpId:"",
         HWAppId:"",
         HWApiKey:"",
@@ -132,7 +140,7 @@ Auth.withXM().onActivityDestroy()
 ```kotlin
 lifecycleScope.launch {
     val loginResult = Auth.withWX().login()
-    val shareLinkResult = Auth.withWX().shareLink("http://www.baidu.com")
+    val shareLinkResult = Auth.withWX().shareLink("http://www.xxx.com")
     // 根据 result 判断是否成功
 }
 ```
@@ -179,8 +187,9 @@ Auth.withHW.purchaseHistoryQuery(activity, 0, false)
 - [微博 : 13.6.1](https://github.com/sinaweibosdk/weibo_android_sdk)
 - [支付宝: 15.8.16](https://docs.open.alipay.com/204/105296/)
 
-- [Google Pay billing-ktx:5.0.0](https://developer.android.com/google/play/billing/integrate#fetch)
+- [Google Pay billing-ktx:6.0.1](https://developer.android.com/google/play/billing/integrate#fetch)
 - [华为联运: 6.4.0](https://developer.huawei.com/consumer/cn/doc/development/HMS-Guides/iap-development-guide-v4)
-- [小米联运: 3.5.3](https://dev.mi.com/distribute/doc/details?pId=1150#6)
+- [小米联运: 3.6.2](https://dev.mi.com/xiaomihyperos/documentation/detail?pId=1972)
 - [银联: 3.5.9](https://open.unionpay.com/tjweb/doc/mchnt/list?productId=3)
 - [荣耀: 8.0.5](https://developer.hihonor.com/cn/kitdoc?category=%E5%9F%BA%E7%A1%80%E6%9C%8D%E5%8A%A1&kitId=11001&navigation=guides&docId=android-intergrate-sdk.md)
+- [荣耀联运: 2.0.5.301](https://developer.honor.com/cn/doc/guides/101243)
