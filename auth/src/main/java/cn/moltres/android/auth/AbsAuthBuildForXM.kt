@@ -49,6 +49,7 @@ abstract class AbsAuthBuildForXM : AbsAuthBuild("XM") {
         orderId: String,
         productCode: String,
         quantity: Int,
+        userInfo: String,
         activity: Activity? = null,
     ): AuthResult
 
@@ -62,6 +63,7 @@ abstract class AbsAuthBuildForXM : AbsAuthBuild("XM") {
         orderId: String,
         productCode: String,
         quantity: Int,
+        userInfo: String,
         activity: Activity? = null,
     ): AuthResult
 }

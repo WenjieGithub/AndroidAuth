@@ -50,8 +50,8 @@
 -keep class cn.com.wali.** {*;}
 -keep class miui.net.**{*;}
 -keep class org.xiaomi.** {*;}
--keep class com.mi.*** {*;}
--keep class demo.csm.*** {*;}
+-keep class com.mi.** {*;}
+-keep class demo.csm.** {*;}
 
 #保留位于View类中的get和set方法
 -keepclassmembers public class * extends android.view.View{

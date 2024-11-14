@@ -117,6 +117,7 @@ class AuthBuildForXM : AbsAuthBuildForXM() {
         orderId: String,
         productCode: String,
         quantity: Int,
+        userInfo: String,
         activity: Activity?
     ) = suspendCancellableCoroutine { coroutine ->
         mAction = "payCode"
@@ -124,6 +125,7 @@ class AuthBuildForXM : AbsAuthBuildForXM() {
         val miBuyInfo = MiBuyInfo()
         miBuyInfo.cpOrderId = orderId          // 订单号唯一（不为空）
         miBuyInfo.productCode = productCode    // 商品代码，开发者申请获得（不为空）
+        miBuyInfo.cpUserInfo = userInfo    // 此参数在用户支付成功后会透传给CP的服务器
         miBuyInfo.quantity = quantity          // 购买数量(商品数量最大9999，最小1)（不为空）
         pay(miBuyInfo, activity)
     }
@@ -143,6 +145,7 @@ class AuthBuildForXM : AbsAuthBuildForXM() {
         orderId: String,
         productCode: String,
         quantity: Int,
+        userInfo: String,
         activity: Activity?,
     ) = suspendCancellableCoroutine { coroutine ->
         mAction = "payTreaty"
@@ -150,6 +153,7 @@ class AuthBuildForXM : AbsAuthBuildForXM() {
         val miBuyInfo = MiBuyInfo()
         miBuyInfo.cpOrderId = orderId          // 订单号唯一（不为空）
         miBuyInfo.productCode = productCode    // 商品代码，开发者申请获得（不为空）
+        miBuyInfo.cpUserInfo = userInfo    // 此参数在用户支付成功后会透传给CP的服务器
         miBuyInfo.quantity = quantity          // 购买数量(商品数量最大9999，最小1)（不为空）
         getActivity(activity) { a, af ->
             MiCommplatform.getInstance().miSubscribe(a, miBuyInfo) { code: Int, msg: String? ->
