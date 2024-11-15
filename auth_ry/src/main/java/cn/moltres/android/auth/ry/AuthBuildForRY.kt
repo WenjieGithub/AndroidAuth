@@ -101,7 +101,11 @@ class AuthBuildForRY: AbsAuthBuildForRY() {
             }
             override fun onFailure(resultCode: Int, resultMessage: String) {
                 //失败的话，查看code和msg信息，也可以重新调用登录接口，再次尝试
-                resultError(resultMessage, null, null, resultCode)
+                if (resultCode == 3002) {
+                    resultCancel()
+                } else {
+                    resultError(resultMessage, null, null, resultCode)
+                }
             }
         })
     }
