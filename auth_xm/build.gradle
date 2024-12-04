@@ -9,15 +9,14 @@ apply from: '../build_module.gradle'
 dependencies {
     compileOnly(project(':auth'))
 
-    implementation 'com.xiaomi.gamevenus:milink-compat:4.0.45'
-    implementation "com.xiaomi.gamecenter.sdk:onetrack-sdk:2.2.5"
-    implementation 'com.xiaomi.account:passportsdk-account-oauth:6.1.6'
-    implementation('com.xiaomi.gamecenter.sdk:miappjoint:3.6.2') {
-//        exclude(group: 'com.google.protobuf')
+    implementation 'com.github.WenjieGithub:AndroidAuthForXM:3.5.3'
+    implementation('com.xiaomi.account:oauth-android:3.5.1')
+    implementation ('androidx.legacy:legacy-support-v13:1.0.0'){
+        exclude(group: 'androidx.core')
+        exclude(group: 'androidx.lifecycle')
     }
-
-//    implementation "androidx.annotation:annotation:1.1.0"
-//    implementation 'com.google.code.gson:gson:2.8.6'
+    implementation "androidx.annotation:annotation:1.1.0"
+    implementation 'com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava'
     implementation 'com.android.volley:volley:1.1.0'
-//    implementation 'org.greenrobot:eventbus:3.1.1'
+    implementation 'org.greenrobot:eventbus:3.1.1'
 }
